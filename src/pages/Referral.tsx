@@ -169,7 +169,12 @@ export default function Referral() {
   const programTerms = useMemo(() => {
     if (!terms) return null;
     const showNewUserBonus = terms.first_topup_bonus_kopeks > 0;
-    const showInviterBonus = terms.inviter_bonus_kopeks > 0;
+    // Партнёрам фикс-бонус пригласившему не начисляется — карточку не показываем
+    const showInviterBonus = terms.inviter_bonus_kopeks > 0 && !isPartner;
+    const effectiveCommissionPercent =
+      isPartner && partnerStatus?.commission_percent != null
+        ? partnerStatus.commission_percent
+        : terms.commission_percent;
     const cardCount = 2 + (showNewUserBonus ? 1 : 0) + (showInviterBonus ? 1 : 0);
     const gridColsMap: Record<number, string> = {
       2: 'md:grid-cols-2',
@@ -185,7 +190,7 @@ export default function Referral() {
           <div className="rounded-xl bg-dark-800/30 p-3">
             <div className="text-sm text-dark-500">{t('referral.terms.commission')}</div>
             <div className="mt-1 text-lg font-semibold text-dark-100">
-              {terms.commission_percent}%
+              {effectiveCommissionPercent}%
             </div>
           </div>
           <div className="rounded-xl bg-dark-800/30 p-3">
@@ -213,7 +218,7 @@ export default function Referral() {
         </div>
       </div>
     );
-  }, [terms, t, formatAmount, formatPositive, currencySymbol]);
+  }, [terms, t, formatAmount, formatPositive, currencySymbol, isPartner, partnerStatus?.commission_percent]);
 
   const copyLink = async (link: string, type: 'cabinet' | 'bot') => {
     if (!link) return;
