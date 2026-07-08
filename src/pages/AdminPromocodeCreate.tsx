@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { DateField } from '../components/DateField';
 import { createNumberInputHandler } from '../utils/inputHelpers';
 import {
   promocodesApi,
@@ -13,35 +14,17 @@ import {
 } from '../api/promocodes';
 import { tariffsApi } from '../api/tariffs';
 import { usePlatform } from '../platform/hooks/usePlatform';
+import { BackIcon, RefreshIcon } from '@/components/icons';
 
-// Icons
-const BackIcon = () => (
-  <svg
-    className="h-5 w-5 text-dark-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-  </svg>
-);
-
-const RefreshIcon = () => (
-  <svg
-    className="h-4 w-4 animate-spin"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-    />
-  </svg>
-);
+// valid_until is created as end-of-day in the admin's LOCAL tz, then stored/returned
+// as a UTC instant. Reading the picker back must convert UTC -> local date, otherwise
+// negative-offset admins see tomorrow's date and re-saving drifts the expiry forward a
+// day each time. (Mirror of DateField's local toISO; must NOT slice the raw UTC string.)
+const utcInstantToLocalDateInput = (iso: string): string => {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export default function AdminPromocodeCreate() {
   const { t } = useTranslation();
@@ -103,7 +86,7 @@ export default function AdminPromocodeCreate() {
       setMaxUses(data.max_uses || 1);
       setIsActive(data.is_active ?? true);
       setFirstPurchaseOnly(data.first_purchase_only || false);
-      setValidUntil(data.valid_until ? data.valid_until.split('T')[0] : '');
+      setValidUntil(data.valid_until ? utcInstantToLocalDateInput(data.valid_until) : '');
       setPromoGroupId(data.promo_group_id || null);
       setTariffId(data.tariff_id || null);
       return data;
@@ -147,7 +130,12 @@ export default function AdminPromocodeCreate() {
       max_uses: maxUsesValue,
       is_active: isActive,
       first_purchase_only: firstPurchaseOnly,
-      valid_until: validUntil ? new Date(validUntil).toISOString() : null,
+      // The picker yields a date-only 'YYYY-MM-DD'. A promo "valid until D" must
+      // stay valid through the WHOLE of day D, so anchor to end-of-day in the
+      // admin's local timezone. `new Date('YYYY-MM-DD')` parses as UTC midnight
+      // (the START of the day) — for a GMT+3 admin that made a code picked for
+      // "today" already expired by 3am, surfacing as a bogus "expired" error.
+      valid_until: validUntil ? new Date(`${validUntil}T23:59:59`).toISOString() : null,
       promo_group_id: type === 'promo_group' ? promoGroupId : null,
       ...(type === 'trial_subscription' && tariffId ? { tariff_id: tariffId } : {}),
     };
@@ -172,7 +160,8 @@ export default function AdminPromocodeCreate() {
     if ((type === 'subscription_days' || type === 'trial_subscription') && daysValue <= 0)
       return false;
     if (type === 'promo_group' && !promoGroupId) return false;
-    if (type === 'discount' && (balanceValue <= 0 || balanceValue > 100 || daysValue <= 0))
+    // For discount, validity hours of 0 = "until first purchase" (perpetual) — allowed.
+    if (type === 'discount' && (balanceValue <= 0 || balanceValue > 100 || daysValue < 0))
       return false;
     return true;
   };
@@ -437,7 +426,7 @@ export default function AdminPromocodeCreate() {
                     }
                   }}
                   className="input w-32"
-                  min={1}
+                  min={0}
                   placeholder="0"
                 />
                 <span className="text-dark-400">{t('admin.promocodes.form.hours')}</span>
@@ -475,12 +464,10 @@ export default function AdminPromocodeCreate() {
           <label htmlFor="pc-valid-until" className="mb-2 block text-sm font-medium text-dark-300">
             {t('admin.promocodes.form.validUntil')}
           </label>
-          <input
-            id="pc-valid-until"
-            type="date"
+          <DateField
             value={validUntil}
-            onChange={(e) => setValidUntil(e.target.value)}
-            className="input"
+            onChange={setValidUntil}
+            className="flex w-full items-center gap-2 rounded-xl border border-dark-700/50 bg-dark-800/50 px-4 py-3 text-sm text-dark-100 transition-colors hover:border-accent-500/50"
           />
           <p className="mt-1 text-xs text-dark-500">{t('admin.promocodes.form.validUntilHint')}</p>
         </div>
@@ -557,7 +544,7 @@ export default function AdminPromocodeCreate() {
             disabled={!isValid() || isLoading}
             className="btn-primary flex items-center gap-2"
           >
-            {isLoading && <RefreshIcon />}
+            {isLoading && <RefreshIcon spinning />}
             {isLoading ? t('admin.promocodes.form.saving') : t('admin.promocodes.form.save')}
           </button>
         </div>

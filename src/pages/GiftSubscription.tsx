@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { giftApi } from '../api/gift';
+import { brandingApi, type TelegramWidgetConfig } from '../api/branding';
 import type {
   GiftConfig,
   GiftTariff,
@@ -21,112 +22,18 @@ import { getApiErrorMessage } from '../utils/api-error';
 import { formatPrice } from '../utils/format';
 import { useCurrency } from '../hooks/useCurrency';
 import { usePlatform, useHaptic } from '@/platform';
-
-function GiftIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="8" width="18" height="4" rx="1" />
-      <rect x="5" y="12" width="14" height="8" rx="1" />
-      <line x1="12" y1="8" x2="12" y2="20" />
-      <path d="M12 8c-2-2-4-3-5-2s0 3 2 4h3" />
-      <path d="M12 8c2-2 4-3 5-2s0 3-2 4h-3" />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function ShareIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
-      <polyline points="16 6 12 2 8 6" />
-      <line x1="12" y1="2" x2="12" y2="15" />
-    </svg>
-  );
-}
-
-function CheckCircleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 12l3 3 5-5" />
-    </svg>
-  );
-}
-
-function KeyIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="15.5" cy="8.5" r="5.5" />
-      <path d="M11.5 12.5L3 21" />
-      <path d="M3 21l3-1 1-3" />
-    </svg>
-  );
-}
-
-function InboxIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-      <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
-    </svg>
-  );
-}
+import { openPaymentUrl } from '../utils/openPaymentUrl';
+import {
+  SparklesIcon,
+  GiftIcon,
+  CheckIcon,
+  CheckCircleIcon,
+  KeyIcon,
+  InboxIcon,
+  ExportIcon,
+  WarningCircleIcon,
+  BanIcon,
+} from '@/components/icons';
 
 function formatPeriodLabel(
   days: number,
@@ -193,19 +100,7 @@ function ErrorState({ message }: { message: string }) {
     <div className="flex min-h-dvh items-center justify-center px-4">
       <div className="flex max-w-sm flex-col items-center gap-4 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-error-500/10">
-          <svg
-            className="h-8 w-8 text-error-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-            />
-          </svg>
+          <WarningCircleIcon className="h-8 w-8 text-error-400" />
         </div>
         <h2 className="text-lg font-semibold text-dark-50">{t('gift.failedTitle')}</h2>
         <p className="text-sm text-dark-300">{message}</p>
@@ -227,19 +122,7 @@ function DisabledState() {
     <div className="flex min-h-dvh items-center justify-center px-4">
       <div className="flex max-w-sm flex-col items-center gap-4 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-dark-800/50">
-          <svg
-            className="h-8 w-8 text-dark-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-            />
-          </svg>
+          <BanIcon className="h-8 w-8 text-dark-400" />
         </div>
         <h2 className="text-lg font-semibold text-dark-50">{t('gift.featureDisabled')}</h2>
         <p className="text-sm text-dark-300">{t('gift.redirecting')}</p>
@@ -348,7 +231,7 @@ function PeriodCard({
           <span
             className={cn(
               'rounded-md px-2 py-0.5 text-xs font-bold',
-              isSelected ? 'bg-white/20 text-white' : 'bg-accent-500/20 text-accent-400',
+              isSelected ? 'bg-white/20 text-on-accent' : 'bg-accent-500/20 text-accent-400',
             )}
           >
             -{period.discount_percent}%
@@ -483,7 +366,7 @@ function PaymentMethodCard({
                 className={cn(
                   'rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200',
                   selectedSubOption === opt.id
-                    ? 'bg-accent-500 text-white shadow-sm shadow-accent-500/25'
+                    ? 'bg-accent-500 text-on-accent shadow-sm shadow-accent-500/25'
                     : 'bg-dark-800/50 text-dark-300 hover:bg-dark-700/50',
                 )}
               >
@@ -506,7 +389,7 @@ function BuyTabContent({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { openInvoice, capabilities } = usePlatform();
+  const { openInvoice, capabilities, openLink, platform } = usePlatform();
   const haptic = useHaptic();
 
   // Selection state
@@ -599,7 +482,9 @@ function BuyTabContent({
           }
           return;
         }
-        window.location.href = result.payment_url;
+        // Non-Stars provider (RollyPay/YooKassa/SBP …): open externally inside Telegram so
+        // a bank-app hand-off via custom scheme doesn't dead-end in the WebView (#654272).
+        openPaymentUrl(result.payment_url, platform, openLink);
       } else {
         // Balance purchase: switch to MyGifts tab so the new code is visible
         queryClient.invalidateQueries({ queryKey: ['balance'] });
@@ -686,17 +571,7 @@ function BuyTabContent({
       {config.promo_group_name && (
         <div className="flex items-center gap-3 rounded-xl border border-success-500/30 bg-success-500/10 p-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success-500/20">
-            <svg
-              className="h-4 w-4 text-success-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-            </svg>
+            <SparklesIcon className="h-4 w-4 text-success-400" />
           </div>
           <div>
             <div className="text-sm font-medium text-success-400">
@@ -713,17 +588,7 @@ function BuyTabContent({
       {config.active_discount_percent != null && config.active_discount_percent > 0 && (
         <div className="flex items-center gap-3 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-warning-500/20">
-            <svg
-              className="h-4 w-4 text-warning-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-            </svg>
+            <SparklesIcon className="h-4 w-4 text-warning-400" />
           </div>
           <div className="text-sm font-medium text-warning-400">
             {t('promo.discountApplied')} -{config.active_discount_percent}%
@@ -851,7 +716,7 @@ function BuyTabContent({
         className={cn(
           'flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-200',
           canSubmit && !purchaseMutation.isPending
-            ? 'bg-accent-500 text-white shadow-lg shadow-accent-500/25 hover:bg-accent-400 hover:shadow-accent-500/40 active:scale-[0.98]'
+            ? 'bg-accent-500 text-on-accent shadow-lg shadow-accent-500/25 hover:bg-accent-400 hover:shadow-accent-500/40 active:scale-[0.98]'
             : 'cursor-not-allowed bg-dark-800 text-dark-500',
         )}
       >
@@ -968,7 +833,7 @@ function ActivateTabContent({ initialCode }: { initialCode?: string | null }) {
         className={cn(
           'w-full max-w-sm rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-200',
           code.trim() && !activateMutation.isPending
-            ? 'bg-accent-500 text-white shadow-lg shadow-accent-500/25 hover:bg-accent-400 active:scale-[0.98]'
+            ? 'bg-accent-500 text-on-accent shadow-lg shadow-accent-500/25 hover:bg-accent-400 active:scale-[0.98]'
             : 'cursor-not-allowed bg-dark-800 text-dark-500',
         )}
       >
@@ -1010,6 +875,16 @@ function SentGiftCard({ gift }: { gift: SentGift }) {
   const { t } = useTranslation();
   const [showToast, setShowToast] = useState(false);
 
+  // Runtime bot username (env var is only a fallback) so the "activate via bot"
+  // line never silently disappears when VITE_TELEGRAM_BOT_USERNAME is unset.
+  const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
+    queryKey: ['telegram-widget-config'],
+    queryFn: brandingApi.getTelegramWidgetConfig,
+    staleTime: 60000,
+  });
+  const botUsername =
+    widgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
+
   const shortCode = gift.token.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
   const isActivated = isGiftActivated(gift);
@@ -1022,11 +897,11 @@ function SentGiftCard({ gift }: { gift: SentGift }) {
       : t(getGiftStatusKey(gift.status));
 
   const buildShareMessage = useCallback(() => {
-    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME as string | undefined;
-    // Encode underscores as %5F so Telegram auto-link detection doesn't strip them
-    const safeCode = shortCode.replace(/_/g, '%5F');
-    const botLink = botUsername ? `https://t.me/${botUsername}?start=GIFT%5F${safeCode}` : null;
-    const cabinetLink = `${window.location.origin}/gift?tab=activate&code=${safeCode}`;
+    // Literal "GIFT_" prefix: Telegram forwards the start param to the bot
+    // verbatim (no URL-decoding), so the previously-encoded "%5F" never matched
+    // the bot's `start_parameter.startswith('GIFT_')` handler.
+    const botLink = botUsername ? `https://t.me/${botUsername}?start=GIFT_${shortCode}` : null;
+    const cabinetLink = `${window.location.origin}/gift?tab=activate&code=${encodeURIComponent(shortCode)}`;
     return [
       t('gift.shareText'),
       '',
@@ -1035,7 +910,7 @@ function SentGiftCard({ gift }: { gift: SentGift }) {
     ]
       .filter(Boolean)
       .join('\n');
-  }, [shortCode, t]);
+  }, [shortCode, botUsername, t]);
 
   const handleShare = useCallback(async () => {
     const message = buildShareMessage();
@@ -1087,9 +962,9 @@ function SentGiftCard({ gift }: { gift: SentGift }) {
           <button
             type="button"
             onClick={handleShare}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3 text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-accent-400 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3 text-sm font-bold uppercase tracking-wider text-on-accent transition-colors hover:bg-accent-400 active:scale-[0.98]"
           >
-            <ShareIcon className="h-4 w-4" />
+            <ExportIcon className="h-4 w-4" />
             {t('gift.shareGift')}
           </button>
         </>
@@ -1334,7 +1209,7 @@ export default function GiftSubscription() {
 
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-lg px-4 py-6">
+      <div className="mx-auto max-w-2xl px-4 py-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -1368,7 +1243,7 @@ export default function GiftSubscription() {
                 className={cn(
                   'flex-1 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                   activeTab === tab.id
-                    ? 'bg-accent-500 text-white shadow-sm'
+                    ? 'bg-accent-500 text-on-accent shadow-sm'
                     : 'text-dark-400 hover:text-dark-200',
                 )}
               >

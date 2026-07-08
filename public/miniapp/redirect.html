@@ -124,7 +124,21 @@
             document.getElementById('errorText').textContent = t.error;
             document.getElementById('manualBtn').textContent = t.btn;
 
-            if (!url) {
+            // SECURITY: this page navigates to a user-supplied `url`. Only open
+            // a custom app deep link. A bare `javascript:`/`data:`/`vbscript:`/
+            // `file:` URI (DOM-XSS) is not scheme://-shaped, and http(s)/intent
+            // are blocked (open redirect / intent abuse) — so only VPN app
+            // schemes (happ://, vless://, ...) pass. Mirrors the validation in
+            // src/pages/DeepLinkRedirect.tsx.
+            function isSafeAppLink(raw) {
+                var s = String(raw || '').trim().toLowerCase();
+                var m = s.match(/^([a-z][a-z0-9+.\-]*):\/\//);
+                if (!m) return false;
+                var blocked = ['http', 'https', 'file', 'blob', 'about', 'javascript', 'data', 'vbscript', 'intent', 'content'];
+                return blocked.indexOf(m[1]) === -1;
+            }
+
+            if (!url || !isSafeAppLink(url)) {
                 document.getElementById('title').textContent = t.noUrl;
                 document.getElementById('subtitle').textContent = '';
                 document.querySelector('.spinner').style.display = 'none';
@@ -134,14 +148,27 @@
             const manualBtn = document.getElementById('manualBtn');
             manualBtn.href = url;
 
-            // Try to open the URL scheme directly
-            // This page is opened in external browser, so custom schemes work
-            window.location.href = url;
+            // Attempt to launch the app WITHOUT a top-level navigation. A direct
+            // `location.href = scheme` paints a full-page net::ERR_UNKNOWN_URL_SCHEME
+            // inside Android in-app browsers (Telegram/Yandex/…) and silently fails on
+            // iOS — hiding the manual button (Telegram bug #654272). A hidden iframe is
+            // contained: the app opens if installed, otherwise the failure stays inside
+            // the (invisible) frame and the button below stays usable.
+            try {
+                var frame = document.createElement('iframe');
+                frame.style.display = 'none';
+                frame.src = url;
+                document.body.appendChild(frame);
+                setTimeout(function() {
+                    try { frame.parentNode.removeChild(frame); } catch (e) {}
+                }, 2000);
+            } catch (e) {
+                window.location.href = url;
+            }
 
-            // Show manual button after a delay in case redirect didn't work
-            setTimeout(function() {
-                document.getElementById('errorBlock').classList.add('show');
-            }, 2000);
+            // Programmatic opening is unreliable in in-app browsers, so surface the
+            // manual "Open app" button immediately — a user tap is the reliable trigger.
+            document.getElementById('errorBlock').classList.add('show');
         })();
     </script>
 </body>

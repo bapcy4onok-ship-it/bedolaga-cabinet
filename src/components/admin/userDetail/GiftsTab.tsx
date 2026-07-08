@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { GiftIcon, SendIcon } from '@/components/icons';
+import { StatCard } from '@/components/stats';
 import { useCurrency } from '../../../hooks/useCurrency';
 import type { AdminUserGiftItem, AdminUserGiftsResponse } from '../../../api/adminUsers';
 
@@ -207,36 +209,24 @@ export function GiftsTab({ giftsLoading, giftsData, locale, onNavigateToUser }: 
     <div className="space-y-6">
       {/* Summary counters */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-dark-800/50 p-4">
-          <div className="mb-1 text-xs text-dark-500">
-            {t('admin.users.detail.gifts.totalSent')}
-          </div>
-          <div className="text-2xl font-bold text-accent-400">{giftsData.sent_total}</div>
-        </div>
-        <div className="rounded-xl bg-dark-800/50 p-4">
-          <div className="mb-1 text-xs text-dark-500">
-            {t('admin.users.detail.gifts.totalReceived')}
-          </div>
-          <div className="text-2xl font-bold text-success-400">{giftsData.received_total}</div>
-        </div>
+        <StatCard
+          label={t('admin.users.detail.gifts.totalSent')}
+          value={giftsData.sent_total}
+          icon={<GiftIcon className="h-5 w-5" />}
+          tone="accent"
+        />
+        <StatCard
+          label={t('admin.users.detail.gifts.totalReceived')}
+          value={giftsData.received_total}
+          icon={<GiftIcon className="h-5 w-5" />}
+          tone="success"
+        />
       </div>
 
       {/* Sent Gifts */}
       <div>
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-dark-200">
-          <svg
-            className="h-4 w-4 text-accent-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-            />
-          </svg>
+          <SendIcon className="h-4 w-4 text-accent-400" />
           {t('admin.users.detail.gifts.sentTitle')}
           <span className="text-dark-500">({giftsData.sent_total})</span>
         </h3>

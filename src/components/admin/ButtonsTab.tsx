@@ -9,6 +9,7 @@ import {
   ButtonSection,
   BOT_LOCALES,
 } from '../../api/buttonStyles';
+import { ChevronDownIcon } from '@/components/icons';
 import { Toggle } from './Toggle';
 import { useNotify } from '../../platform/hooks/useNotify';
 import { useNativeDialog } from '../../platform/hooks/useNativeDialog';
@@ -227,7 +228,7 @@ export function ButtonsTab() {
                           ? 'bg-success-500 text-white'
                           : cfg.style === 'danger'
                             ? 'bg-error-500 text-white'
-                            : 'bg-accent-500 text-white'
+                            : 'bg-accent-500 text-on-accent'
                     }`}
                   >
                     {t(`admin.buttons.styles.${cfg.style}`)}
@@ -284,15 +285,9 @@ export function ButtonsTab() {
                     {t('admin.buttons.customLabels')}
                     {hasCustomLabels && <span className="h-1.5 w-1.5 rounded-full bg-accent-500" />}
                   </span>
-                  <svg
+                  <ChevronDownIcon
                     className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+                  />
                 </button>
                 {isExpanded && (
                   <div className="mt-2 space-y-2">
@@ -326,7 +321,7 @@ export function ButtonsTab() {
           <button
             onClick={handleSave}
             disabled={updateMutation.isPending}
-            className="rounded-xl bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+            className="rounded-xl bg-accent-500 px-4 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
           >
             {updateMutation.isPending ? t('common.saving') : t('common.save')}
           </button>

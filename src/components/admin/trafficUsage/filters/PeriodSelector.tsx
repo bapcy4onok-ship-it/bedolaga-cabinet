@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { CalendarIcon, XIcon } from '../TrafficIcons';
+import { DateField } from '../../../DateField';
 
 // ──────────────────────────────────────────────────────────────────
 // PeriodSelector — switches between fixed period tabs (1/3/7/14/30
@@ -41,32 +42,28 @@ export function PeriodSelector({
 
   if (dateMode) {
     return (
-      <div className="flex items-center gap-2">
-        <CalendarIcon />
+      <div className="flex flex-wrap items-center gap-2">
+        <CalendarIcon className="h-4 w-4 shrink-0" />
         <span className="text-xs text-dark-400">{t('admin.trafficUsage.dateFrom')}</span>
-        <input
-          type="date"
+        <DateField
           value={customStart}
           min={minDate}
           max={customEnd || today}
-          onChange={(e) => onCustomStartChange(e.target.value)}
-          className="rounded-lg border border-dark-700 bg-dark-800 px-2 py-1 text-xs text-dark-200 focus:border-dark-600 focus:outline-none"
+          onChange={onCustomStartChange}
         />
         <span className="text-xs text-dark-400">{t('admin.trafficUsage.dateTo')}</span>
-        <input
-          type="date"
+        <DateField
           value={customEnd}
           min={customStart || minDate}
           max={today}
-          onChange={(e) => onCustomEndChange(e.target.value)}
-          className="rounded-lg border border-dark-700 bg-dark-800 px-2 py-1 text-xs text-dark-200 focus:border-dark-600 focus:outline-none"
+          onChange={onCustomEndChange}
         />
         <button
           onClick={onToggleDateMode}
           className="rounded-lg p-1 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
           title={t('admin.trafficUsage.period')}
         >
-          <XIcon />
+          <XIcon className="h-3 w-3" />
         </button>
       </div>
     );
@@ -82,7 +79,7 @@ export function PeriodSelector({
             onClick={() => onChange(p)}
             className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
               value === p
-                ? 'bg-accent-500 text-white'
+                ? 'bg-accent-500 text-on-accent'
                 : 'bg-dark-800 text-dark-400 hover:bg-dark-700 hover:text-dark-200'
             }`}
           >
@@ -96,7 +93,7 @@ export function PeriodSelector({
         className="rounded-lg border border-dark-700 bg-dark-800 p-1.5 text-dark-400 transition-colors hover:border-dark-600 hover:bg-dark-700 hover:text-dark-200"
         title={t('admin.trafficUsage.customDates')}
       >
-        <CalendarIcon />
+        <CalendarIcon className="h-4 w-4" />
       </button>
     </div>
   );

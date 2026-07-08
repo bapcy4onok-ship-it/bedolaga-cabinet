@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { brandingApi } from '../../api/branding';
-import { CheckIcon, CloseIcon } from './icons';
+import { CheckIcon, CloseIcon, PencilIcon } from './icons';
 
 export function AnalyticsTab() {
   const { t } = useTranslation();
@@ -114,7 +114,7 @@ export function AnalyticsTab() {
               <button
                 onClick={handleSaveYandex}
                 disabled={updateMutation.isPending}
-                className="rounded-xl bg-accent-500 px-4 py-2.5 text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+                className="rounded-xl bg-accent-500 px-4 py-2.5 text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
               >
                 <CheckIcon />
               </button>
@@ -143,19 +143,7 @@ export function AnalyticsTab() {
                 }}
                 className="rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
               >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                  />
-                </svg>
+                <PencilIcon className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -265,7 +253,7 @@ export function AnalyticsTab() {
                 <button
                   onClick={handleSaveGoogleId}
                   disabled={updateMutation.isPending}
-                  className="rounded-xl bg-accent-500 px-4 py-2.5 text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+                  className="rounded-xl bg-accent-500 px-4 py-2.5 text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
                 >
                   <CheckIcon />
                 </button>
@@ -280,9 +268,9 @@ export function AnalyticsTab() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <span
-                  className={`text-base ${analytics?.google_ads_id ? 'font-mono text-dark-100' : 'text-dark-500'}`}
+                  className={`min-w-0 truncate text-base ${analytics?.google_ads_id ? 'font-mono text-dark-100' : 'text-dark-500'}`}
                 >
                   {analytics?.google_ads_id || t('admin.settings.notConfigured')}
                 </span>
@@ -292,21 +280,9 @@ export function AnalyticsTab() {
                     setEditingGoogleId(true);
                     setError(null);
                   }}
-                  className="rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
+                  className="shrink-0 rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                    />
-                  </svg>
+                  <PencilIcon className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -331,7 +307,7 @@ export function AnalyticsTab() {
                 <button
                   onClick={handleSaveGoogleLabel}
                   disabled={updateMutation.isPending}
-                  className="rounded-xl bg-accent-500 px-4 py-2.5 text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+                  className="rounded-xl bg-accent-500 px-4 py-2.5 text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
                 >
                   <CheckIcon />
                 </button>
@@ -346,9 +322,9 @@ export function AnalyticsTab() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <span
-                  className={`text-base ${analytics?.google_ads_label ? 'font-mono text-dark-100' : 'text-dark-500'}`}
+                  className={`min-w-0 truncate text-base ${analytics?.google_ads_label ? 'font-mono text-dark-100' : 'text-dark-500'}`}
                 >
                   {analytics?.google_ads_label || t('admin.settings.notConfigured')}
                 </span>
@@ -358,21 +334,9 @@ export function AnalyticsTab() {
                     setEditingGoogleLabel(true);
                     setError(null);
                   }}
-                  className="rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
+                  className="shrink-0 rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-dark-700 hover:text-dark-200"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                    />
-                  </svg>
+                  <PencilIcon className="h-4 w-4" />
                 </button>
               </div>
             )}

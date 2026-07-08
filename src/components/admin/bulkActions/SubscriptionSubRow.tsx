@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { CheckIcon } from '@/components/icons';
 import type { UserListItemSubscription } from '../../../api/adminUsers';
 
 // ──────────────────────────────────────────────────────────────────
@@ -68,17 +69,7 @@ export function SubscriptionSubRow({
                   : t('admin.bulkActions.selectUser', { name: subscription.tariff_name || '' })
               }
             >
-              {isSelected && (
-                <svg
-                  className="h-3 w-3 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={4}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-              )}
+              {isSelected && <CheckIcon className="h-3 w-3 text-white" />}
             </button>
           </div>
         )}
@@ -102,7 +93,7 @@ export function SubscriptionSubRow({
                 />
               </svg>
             </span>
-            <span className="text-xs font-semibold text-dark-200">
+            <span className="min-w-0 flex-1 truncate text-xs font-semibold text-dark-200">
               {subscription.tariff_name || '—'}
             </span>
           </div>

@@ -4,7 +4,20 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
 import { campaignsApi, CampaignListItem, CampaignBonusType } from '../api/campaigns';
-import { PlusIcon, EditIcon, TrashIcon, CheckIcon, XIcon, ChartIcon } from '../components/icons';
+import {
+  PlusIcon,
+  EditIcon,
+  TrashIcon,
+  CheckIcon,
+  XIcon,
+  ChartIcon,
+  BackIcon,
+  CampaignIcon,
+  BoltIcon,
+  UserPlusIcon,
+  BanknotesIcon,
+} from '../components/icons';
+import { StatCard } from '../components/stats';
 import { usePlatform } from '../platform/hooks/usePlatform';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
@@ -36,19 +49,6 @@ const bonusTypeConfig: Record<
     bgColor: 'bg-dark-500/20',
   },
 };
-
-// Icons
-const BackIcon = () => (
-  <svg
-    className="h-5 w-5 text-dark-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-  </svg>
-);
 
 // Locale mapping for formatting
 const localeMap: Record<string, string> = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', fa: 'fa-IR' };
@@ -136,7 +136,7 @@ export default function AdminCampaigns() {
         </div>
         <button
           onClick={() => navigate('/admin/campaigns/create')}
-          className="flex items-center justify-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600"
+          className="flex items-center justify-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-on-accent transition-colors hover:bg-accent-600"
         >
           <PlusIcon />
           {t('admin.campaigns.createButton')}
@@ -146,30 +146,30 @@ export default function AdminCampaigns() {
       {/* Overview */}
       {overview && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
-            <div className="text-2xl font-bold text-dark-100">{overview.total}</div>
-            <div className="text-sm text-dark-400">
-              {t('admin.campaigns.overview.totalCampaigns')}
-            </div>
-          </div>
-          <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
-            <div className="text-2xl font-bold text-success-400">{overview.active}</div>
-            <div className="text-sm text-dark-400">{t('admin.campaigns.overview.active')}</div>
-          </div>
-          <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
-            <div className="text-2xl font-bold text-accent-400">{overview.total_registrations}</div>
-            <div className="text-sm text-dark-400">
-              {t('admin.campaigns.overview.registrations')}
-            </div>
-          </div>
-          <div className="rounded-xl border border-dark-700 bg-dark-800 p-4">
-            <div className="text-2xl font-bold text-success-400">
-              {formatRubles(overview.total_balance_issued_kopeks)}
-            </div>
-            <div className="text-sm text-dark-400">
-              {t('admin.campaigns.overview.bonusesIssued')}
-            </div>
-          </div>
+          <StatCard
+            label={t('admin.campaigns.overview.totalCampaigns')}
+            value={overview.total}
+            icon={<CampaignIcon className="h-5 w-5" />}
+            tone="neutral"
+          />
+          <StatCard
+            label={t('admin.campaigns.overview.active')}
+            value={overview.active}
+            icon={<BoltIcon className="h-5 w-5" />}
+            tone="success"
+          />
+          <StatCard
+            label={t('admin.campaigns.overview.registrations')}
+            value={overview.total_registrations}
+            icon={<UserPlusIcon className="h-5 w-5" />}
+            tone="accent"
+          />
+          <StatCard
+            label={t('admin.campaigns.overview.bonusesIssued')}
+            value={formatRubles(overview.total_balance_issued_kopeks)}
+            icon={<BanknotesIcon className="h-5 w-5" />}
+            tone="success"
+          />
         </div>
       )}
 

@@ -4,20 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { rbacApi, PermissionSection, CreateRolePayload, UpdateRolePayload } from '@/api/rbac';
 import { AdminBackButton } from '@/components/admin';
-
-// === Icons ===
-
-const ChevronDownIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className || 'h-4 w-4'}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-  </svg>
-);
+import { ChevronDownIcon } from '@/components/icons';
 
 // === Constants ===
 
@@ -527,7 +514,7 @@ export default function AdminRoleEdit() {
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-lg bg-accent-500 px-4 py-2 text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+              className="rounded-lg bg-accent-500 px-4 py-2 text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
             >
               {isSaving ? t('admin.roles.form.saving') : t('admin.roles.form.save')}
             </button>

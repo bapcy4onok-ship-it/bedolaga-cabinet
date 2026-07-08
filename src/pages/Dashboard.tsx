@@ -21,12 +21,7 @@ import { promoApi } from '../api/promo';
 import PendingGiftCard from '../components/dashboard/PendingGiftCard';
 import SubscriptionListCard from '../components/subscription/SubscriptionListCard';
 import { API } from '../config/constants';
-
-const ChevronRightIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-  </svg>
-);
+import { ChevronRightIcon, StarIcon } from '@/components/icons';
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -203,6 +198,12 @@ export default function Dashboard() {
     ? multiSubData !== undefined && (multiSubData.subscriptions?.length ?? 0) === 0
     : subscriptionResponse?.has_subscription === false && !subLoading;
 
+  // Есть ли НАСТОЯЩАЯ (платная, не триал) живая подписка — от этого зависит CTA:
+  // «+ Купить ещё» только при наличии платной; иначе явная «Посмотреть тарифы».
+  const hasActivePaid = (multiSubData?.subscriptions ?? []).some(
+    (s) => !s.is_trial && (s.status === 'active' || s.status === 'limited'),
+  );
+
   // Show onboarding for new users after data loads
   useEffect(() => {
     if (!isOnboardingCompleted && !subLoading && !refLoading && !blockingType) {
@@ -268,16 +269,7 @@ export default function Dashboard() {
                 color: 'rgb(var(--color-accent-400))',
               }}
             >
-              <svg
-                className="shrink-0"
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
+              <StarIcon filled className="h-2.5 w-2.5 shrink-0" />
               <span className="truncate">{promoGroupData.group_name}</span>
             </span>
           )}
@@ -287,8 +279,10 @@ export default function Dashboard() {
       {/* Pending Gift Activations */}
       {pendingGifts && pendingGifts.length > 0 && <PendingGiftCard gifts={pendingGifts} />}
 
-      {/* Multi-tariff: show subscription cards (max 3) */}
-      {isMultiTariff && multiSubData?.subscriptions && (
+      {/* Multi-tariff: show subscription cards (max 3) — только когда подписки
+          реально есть. Пустой случай (нет подписок) ведёт блок ниже (триал/покупка),
+          иначе кнопка покупки дублировалась. */}
+      {isMultiTariff && multiSubData?.subscriptions && multiSubData.subscriptions.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <span className="text-sm font-medium opacity-60">
@@ -313,12 +307,23 @@ export default function Dashboard() {
               {t('dashboard.showAll', 'Показать все')} ({multiSubData.subscriptions.length})
             </Link>
           )}
-          <Link
-            to="/subscription/purchase"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500/15 p-3.5 text-sm font-medium text-accent-400 transition-all hover:bg-accent-500/25"
-          >
-            <span className="text-base">+</span> {t('subscriptions.buyAnother', 'Купить ещё тариф')}
-          </Link>
+          {hasActivePaid ? (
+            <Link
+              to="/subscription/purchase"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500/15 p-3.5 text-sm font-medium text-accent-400 transition-all hover:bg-accent-500/25"
+            >
+              <span className="text-base">+</span>{' '}
+              {t('subscriptions.buyAnother', 'Купить ещё тариф')}
+            </Link>
+          ) : (
+            <Link
+              to="/subscription/purchase"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500 p-3.5 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-600"
+            >
+              <span className="text-base">+</span>{' '}
+              {t('subscriptions.browsePlans', 'Посмотреть тарифы и купить подписку')}
+            </Link>
+          )}
         </div>
       )}
 
@@ -358,15 +363,30 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Trial Activation */}
-      {hasNoSubscription && !trialLoading && trialInfo?.is_available && (
-        <TrialOfferCard
-          trialInfo={trialInfo}
-          balanceKopeks={balanceData?.balance_kopeks || 0}
-          balanceRubles={balanceData?.balance_rubles || 0}
-          activateTrialMutation={activateTrialMutation}
-          trialError={trialError}
-        />
+      {/* Нет подписок: показываем триал (если доступен) и ВСЕГДА одну явную
+          кнопку покупки. Триал не обязателен, чтобы попасть в витрину — раньше
+          при доступном триале это был единственный экран без кнопки покупки
+          (Telegram-баг #605056/#605063). Единственная кнопка тут (вместо дубля
+          с мульти-тариф блоком). */}
+      {hasNoSubscription && !trialLoading && (
+        <div className="space-y-3">
+          {trialInfo?.is_available && (
+            <TrialOfferCard
+              trialInfo={trialInfo}
+              balanceKopeks={balanceData?.balance_kopeks || 0}
+              balanceRubles={balanceData?.balance_rubles || 0}
+              activateTrialMutation={activateTrialMutation}
+              trialError={trialError}
+            />
+          )}
+          <Link
+            to="/subscription/purchase"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500 p-3.5 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-600"
+          >
+            <span className="text-base">+</span>{' '}
+            {t('subscriptions.browsePlans', 'Посмотреть тарифы и купить подписку')}
+          </Link>
+        </div>
       )}
 
       {/* Promo Offers */}

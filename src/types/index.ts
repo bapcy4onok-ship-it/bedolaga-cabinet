@@ -448,6 +448,7 @@ export interface PaymentMethod {
   max_amount_kopeks: number;
   is_available: boolean;
   options?: PaymentMethodOption[] | null;
+  quick_amounts?: number[];
   // Если true — после получения payment_url кабинет сразу делает
   // window.location.href вместо показа панели с кнопкой "Открыть".
   open_url_direct?: boolean;
@@ -486,6 +487,8 @@ export interface TicketMediaItem {
   type: 'photo' | 'video' | 'document';
   file_id: string;
   caption?: string | null;
+  /** Signed, expiring download token (response only). */
+  token?: string | null;
 }
 
 export interface TicketMessage {
@@ -495,6 +498,8 @@ export interface TicketMessage {
   has_media: boolean;
   media_type: string | null;
   media_file_id: string | null;
+  /** Signed, expiring download token for the legacy single media_file_id. */
+  media_token?: string | null;
   media_caption: string | null;
   media_items?: TicketMediaItem[] | null;
   created_at: string;
@@ -538,7 +543,7 @@ export interface LocalizedText {
   [key: string]: string;
 }
 
-// RemnaWave format types
+// Remnawave format types
 export interface RemnawaveButtonClient {
   url?: string;
   link?: string;
@@ -581,7 +586,7 @@ export interface AppConfig {
     supportUrl?: string;
   };
 
-  // RemnaWave
+  // Remnawave
   isRemnawave?: boolean;
   svgLibrary?: Record<string, string | { svgString: string }>;
   baseTranslations?: Record<string, LocalizedText>;
@@ -683,6 +688,8 @@ export interface PaymentMethodConfig {
   default_display_name: string;
   sub_options: Record<string, boolean> | null;
   available_sub_options: PaymentMethodSubOptionInfo[] | null;
+  quick_amounts: number[] | null;
+  default_quick_amounts: number[];
   min_amount_kopeks: number | null;
   max_amount_kopeks: number | null;
   default_min_amount_kopeks: number;
