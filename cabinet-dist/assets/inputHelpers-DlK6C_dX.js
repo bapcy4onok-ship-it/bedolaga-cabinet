@@ -1,0 +1,1 @@
+function i(r,n,a){return u=>{const e=u.target.value;if(e===""){r("");return}let t=parseFloat(e);isNaN(t)||(n!==void 0&&(t=Math.max(n,t)),a!==void 0&&(t=Math.min(a,t)),r(t))}}function o(r,n=0){return r===""?n:r}export{i as c,o as t};

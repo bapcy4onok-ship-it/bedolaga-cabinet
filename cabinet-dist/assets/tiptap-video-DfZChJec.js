@@ -1,0 +1,1 @@
+import{N as t,m as r}from"./vendor-tiptap-Be0Zwvkw.js";const o=t.create({name:"video",group:"block",atom:!0,addAttributes(){return{src:{default:null},controls:{default:""},class:{default:null},preload:{default:"metadata"}}},parseHTML(){return[{tag:"video"}]},renderHTML({HTMLAttributes:e}){return["video",r(e)]}});export{o as V};

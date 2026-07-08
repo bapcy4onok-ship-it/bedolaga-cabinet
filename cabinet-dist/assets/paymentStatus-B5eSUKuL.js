@@ -1,0 +1,1 @@
+const a=new Set(["succeeded","success","paid","paid_over","overpaid","completed","confirmed","closed"]),c=new Set(["fail","failed","error","canceled","cancelled","declined","expired","cancel","system_fail","refund_paid","decline"]);function d(e){return a.has(e.toLowerCase())}function s(e){return c.has(e.toLowerCase())}export{s as a,d as i};

@@ -1,0 +1,1 @@
+import{a as n}from"./vendor-utils-BD2J91SL.js";function f(i,o){if(n.isAxiosError(i)){const r=i.response?.data?.detail;return typeof r=="string"?r:Array.isArray(r)&&r.length>0?r.map(t=>{const s=t.loc?.filter(e=>e!=="body").join(".")??"";return s?`${s}: ${t.msg}`:t.msg??""}).join("; "):o}return o}export{f as g};

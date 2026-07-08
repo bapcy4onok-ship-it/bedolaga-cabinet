@@ -1,0 +1,1 @@
+function o(r,e){return(...c)=>{}}function t(r){return(...e)=>{r?console.error(`[${r}]`,...e):console.error(...e)}}function n(r){return{log:o(),warn:o(),error:t(r),debug:o()}}const g={...n(),createLogger:r=>n(r)};export{g as l};
