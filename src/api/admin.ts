@@ -18,6 +18,8 @@ export interface AdminTicketMessage {
   id: number;
   message_text: string;
   is_from_admin: boolean;
+  /** Staff member name for admin messages (null for legacy rows without an author). */
+  author_name?: string | null;
   has_media: boolean;
   media_type: string | null;
   media_file_id: string | null;
