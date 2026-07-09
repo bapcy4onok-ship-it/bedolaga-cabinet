@@ -542,7 +542,7 @@ export default function AdminTickets() {
                         className={`text-xs font-medium ${msg.is_from_admin ? 'text-accent-400' : 'text-dark-400'}`}
                       >
                         {msg.is_from_admin
-                          ? t('admin.tickets.adminLabel')
+                          ? msg.author_name || t('admin.tickets.adminLabel')
                           : t('admin.tickets.userLabel')}
                       </span>
                       <span className="text-xs text-dark-500">
