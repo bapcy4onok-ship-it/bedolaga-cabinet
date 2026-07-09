@@ -6,7 +6,6 @@ import { adminApi } from '../api/admin';
 import { AdminBackButton } from '../components/admin';
 import { SettingsIcon } from '@/components/icons';
 import { toNumber } from '../utils/inputHelpers';
-import { usePermissionStore } from '../store/permissions';
 
 type NumberOrEmpty = number | '';
 
@@ -14,10 +13,6 @@ export default function AdminTicketSettings() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const canManageModerators = usePermissionStore((state) =>
-    state.hasPermission('tickets:moderators'),
-  );
-  const [newModeratorId, setNewModeratorId] = useState('');
 
   const {
     data: settings,
@@ -26,32 +21,6 @@ export default function AdminTicketSettings() {
   } = useQuery({
     queryKey: ['ticket-settings'],
     queryFn: adminApi.getTicketSettings,
-  });
-
-  const { data: moderators } = useQuery({
-    queryKey: ['ticket-moderators'],
-    queryFn: adminApi.getTicketModerators,
-    enabled: canManageModerators,
-  });
-
-  const { data: leaderboard } = useQuery({
-    queryKey: ['ticket-leaderboard'],
-    queryFn: () => adminApi.getTicketLeaderboard(15),
-  });
-
-  const addModeratorMutation = useMutation({
-    mutationFn: (telegramId: number) => adminApi.addTicketModerator(telegramId),
-    onSuccess: () => {
-      setNewModeratorId('');
-      queryClient.invalidateQueries({ queryKey: ['ticket-moderators'] });
-    },
-  });
-
-  const removeModeratorMutation = useMutation({
-    mutationFn: (telegramId: number) => adminApi.removeTicketModerator(telegramId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ticket-moderators'] });
-    },
   });
 
   const [formData, setFormData] = useState<{
@@ -376,118 +345,6 @@ export default function AdminTicketSettings() {
           </div>
         )}
       </form>
-
-      {/* Модераторы поддержки (только с правом tickets:moderators) */}
-      {canManageModerators && (
-        <div className="card mt-6">
-          <h3 className="mb-2 text-lg font-semibold text-dark-100">
-            {t('admin.tickets.moderatorsTitle', '🧑‍⚖️ Модераторы поддержки')}
-          </h3>
-          <p className="mb-4 text-sm text-dark-500">
-            {t(
-              'admin.tickets.moderatorsDesc',
-              'Модераторы видят тикеты в боте и получают личные уведомления о новых обращениях.',
-            )}
-          </p>
-
-          <div className="mb-4 flex gap-2">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={newModeratorId}
-              onChange={(e) => setNewModeratorId(e.target.value.replace(/\D/g, ''))}
-              placeholder={t('admin.tickets.moderatorIdPlaceholder', 'Telegram ID')}
-              className="input flex-1"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                const id = parseInt(newModeratorId, 10);
-                if (id > 0) addModeratorMutation.mutate(id);
-              }}
-              disabled={!newModeratorId || addModeratorMutation.isPending}
-              className="btn-primary"
-            >
-              {t('admin.tickets.addModerator', 'Добавить')}
-            </button>
-          </div>
-
-          {addModeratorMutation.isError && (
-            <div className="mb-3 rounded-lg border border-error-500/30 bg-error-500/10 p-3 text-sm text-error-400">
-              {t('admin.tickets.moderatorAddError', 'Не удалось добавить модератора')}
-            </div>
-          )}
-
-          {!moderators?.length ? (
-            <div className="py-4 text-center text-sm text-dark-500">
-              {t('admin.tickets.noModerators', 'Модераторов пока нет')}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {moderators.map((mod) => (
-                <div
-                  key={mod.telegram_id}
-                  className="flex items-center justify-between rounded-xl border border-dark-700/50 bg-dark-800/30 px-4 py-3"
-                >
-                  <div>
-                    <div className="text-sm font-medium text-dark-100">
-                      {mod.user
-                        ? `${mod.user.first_name || ''} ${mod.user.last_name || ''}`.trim() ||
-                          (mod.user.username ? `@${mod.user.username}` : mod.telegram_id)
-                        : mod.telegram_id}
-                      <span className="ml-2 text-xs text-dark-500">({mod.telegram_id})</span>
-                    </div>
-                    <div className="text-xs text-dark-500">
-                      {t('admin.tickets.moderatorClosed', 'Закрыто тикетов')}: {mod.closed_count}
-                      {mod.rank ? ` · ${mod.rank}` : ''}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeModeratorMutation.mutate(mod.telegram_id)}
-                    disabled={removeModeratorMutation.isPending}
-                    className="rounded-lg border border-error-500/30 px-3 py-1.5 text-xs text-error-400 transition-colors hover:bg-error-500/10 disabled:opacity-50"
-                  >
-                    {t('common.delete', 'Удалить')}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Рейтинг модераторов */}
-      <div className="card mt-6">
-        <h3 className="mb-4 text-lg font-semibold text-dark-100">
-          {t('admin.tickets.leaderboardTitle', '🏆 Рейтинг модераторов')}
-        </h3>
-        {!leaderboard?.length ? (
-          <div className="py-4 text-center text-sm text-dark-500">
-            {t('admin.tickets.leaderboardEmpty', 'Пока никто не закрыл ни одного тикета')}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {leaderboard.map((entry, idx) => (
-              <div
-                key={`${entry.telegram_id ?? 'u'}_${idx}`}
-                className="flex items-center justify-between rounded-xl border border-dark-700/50 bg-dark-800/30 px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-8 text-center text-lg">
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-dark-100">{entry.display}</div>
-                    <div className="text-xs text-dark-500">{entry.rank}</div>
-                  </div>
-                </div>
-                <span className="text-sm font-semibold text-accent-400">{entry.closed}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
