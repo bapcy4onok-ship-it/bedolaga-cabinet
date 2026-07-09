@@ -37,6 +37,8 @@ export interface AdminTicket {
   messages_count: number;
   user: AdminTicketUser | null;
   last_message: AdminTicketMessage | null;
+  assigned_to?: AdminTicketUser | null;
+  assigned_at?: string | null;
 }
 
 export interface AdminTicketDetail {
@@ -50,6 +52,24 @@ export interface AdminTicketDetail {
   is_reply_blocked: boolean;
   user: AdminTicketUser | null;
   messages: AdminTicketMessage[];
+  assigned_to?: AdminTicketUser | null;
+  assigned_at?: string | null;
+}
+
+export interface AdminLeaderboardEntry {
+  telegram_id: number | null;
+  user_id: number | null;
+  display: string;
+  username: string | null;
+  closed: number;
+  rank: string;
+}
+
+export interface AdminModeratorInfo {
+  telegram_id: number;
+  user: AdminTicketUser | null;
+  closed_count: number;
+  rank: string | null;
 }
 
 export interface AdminTicketStats {
@@ -109,9 +129,48 @@ export const adminApi = {
       status?: string;
       priority?: string;
       user_id?: number;
+      assigned?: string;
     } = {},
   ): Promise<AdminTicketListResponse> => {
     const response = await apiClient.get('/cabinet/admin/tickets', { params });
+    return response.data;
+  },
+
+  // Take ticket (assign to me)
+  takeTicket: async (ticketId: number): Promise<AdminTicketDetail> => {
+    const response = await apiClient.post(`/cabinet/admin/tickets/${ticketId}/assign`);
+    return response.data;
+  },
+
+  // Release ticket back to the queue
+  releaseTicket: async (ticketId: number): Promise<AdminTicketDetail> => {
+    const response = await apiClient.post(`/cabinet/admin/tickets/${ticketId}/unassign`);
+    return response.data;
+  },
+
+  // Moderator leaderboard (closed tickets + ranks)
+  getTicketLeaderboard: async (limit = 25): Promise<AdminLeaderboardEntry[]> => {
+    const response = await apiClient.get('/cabinet/admin/tickets/leaderboard', {
+      params: { limit },
+    });
+    return response.data;
+  },
+
+  // Support moderators management
+  getTicketModerators: async (): Promise<AdminModeratorInfo[]> => {
+    const response = await apiClient.get('/cabinet/admin/tickets/moderators');
+    return response.data;
+  },
+
+  addTicketModerator: async (telegramId: number): Promise<AdminModeratorInfo[]> => {
+    const response = await apiClient.post('/cabinet/admin/tickets/moderators', {
+      telegram_id: telegramId,
+    });
+    return response.data;
+  },
+
+  removeTicketModerator: async (telegramId: number): Promise<{ success: boolean }> => {
+    const response = await apiClient.delete(`/cabinet/admin/tickets/moderators/${telegramId}`);
     return response.data;
   },
 

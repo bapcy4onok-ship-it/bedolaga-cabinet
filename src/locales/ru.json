@@ -2910,7 +2910,21 @@
         "checkIntervalRange": "Интервал проверки должен быть от 1 до 1440 мин",
         "reminderCooldownRange": "Кулдаун напоминания должен быть от 0 до 1440 мин",
         "slaMinutesRange": "SLA должен быть от 1 до 10080 мин"
-      }
+      },
+      "myTickets": "🤝 Мои",
+      "myTicketsHint": "Тикеты, взятые вами в работу",
+      "assignedTo": "В работе у",
+      "takeTicket": "✋ Взять тикет",
+      "releaseTicket": "↩️ Отпустить",
+      "moderatorsTitle": "🧑‍⚖️ Модераторы поддержки",
+      "moderatorsDesc": "Модераторы видят тикеты в боте и получают личные уведомления о новых обращениях.",
+      "moderatorIdPlaceholder": "Telegram ID",
+      "addModerator": "Добавить",
+      "moderatorAddError": "Не удалось добавить модератора",
+      "noModerators": "Модераторов пока нет",
+      "moderatorClosed": "Закрыто тикетов",
+      "leaderboardTitle": "🏆 Рейтинг модераторов",
+      "leaderboardEmpty": "Пока никто не закрыл ни одного тикета"
     },
     "tariffs": {
       "title": "Управление тарифами",

@@ -2514,7 +2514,21 @@
         "checkIntervalRange": "Check interval must be between 1 and 1440 minutes",
         "reminderCooldownRange": "Reminder cooldown must be between 0 and 1440 minutes",
         "slaMinutesRange": "SLA must be between 1 and 10080 minutes"
-      }
+      },
+      "myTickets": "🤝 Mine",
+      "myTicketsHint": "Tickets you have taken",
+      "assignedTo": "Taken by",
+      "takeTicket": "✋ Take ticket",
+      "releaseTicket": "↩️ Release",
+      "moderatorsTitle": "🧑‍⚖️ Support moderators",
+      "moderatorsDesc": "Moderators see tickets in the bot and get personal notifications about new requests.",
+      "moderatorIdPlaceholder": "Telegram ID",
+      "addModerator": "Add",
+      "moderatorAddError": "Failed to add moderator",
+      "noModerators": "No moderators yet",
+      "moderatorClosed": "Tickets closed",
+      "leaderboardTitle": "🏆 Moderator leaderboard",
+      "leaderboardEmpty": "Nobody has closed a ticket yet"
     },
     "tariffs": {
       "title": "Tariff Management",

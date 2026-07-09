@@ -5,10 +5,11 @@ import { MessageMediaGrid } from '../components/tickets/MessageMediaGrid';
 import { useNavigate, useParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { adminApi, AdminTicket, AdminTicketDetail } from '../api/admin';
+import { adminApi, AdminTicket, AdminTicketDetail, AdminTicketUser } from '../api/admin';
 import { ticketsApi } from '../api/tickets';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 import { usePlatform } from '../platform/hooks/usePlatform';
+import { usePermissionStore } from '../store/permissions';
 import {
   BackIcon,
   CheckCircleIcon,
@@ -77,6 +78,8 @@ export default function AdminTickets() {
     }
   }, [ticketId]);
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [assignedFilter, setAssignedFilter] = useState<string>('');
+  const canAssign = usePermissionStore((state) => state.hasPermission('tickets:assign'));
   const [replyText, setReplyText] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
@@ -103,12 +106,13 @@ export default function AdminTickets() {
   });
 
   const { data: ticketsData, isLoading: ticketsLoading } = useQuery({
-    queryKey: ['admin-tickets', page, statusFilter],
+    queryKey: ['admin-tickets', page, statusFilter, assignedFilter],
     queryFn: () =>
       adminApi.getTickets({
         page,
         per_page: 20,
         status: statusFilter || undefined,
+        assigned: assignedFilter || undefined,
       }),
   });
 
@@ -125,6 +129,22 @@ export default function AdminTickets() {
       queryClient.invalidateQueries({ queryKey: ['admin-ticket', selectedTicketId] });
       queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
       queryClient.invalidateQueries({ queryKey: ['admin-ticket-stats'] });
+    },
+  });
+
+  const takeMutation = useMutation({
+    mutationFn: (ticketId: number) => adminApi.takeTicket(ticketId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-ticket', selectedTicketId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+    },
+  });
+
+  const releaseMutation = useMutation({
+    mutationFn: (ticketId: number) => adminApi.releaseTicket(ticketId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-ticket', selectedTicketId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
     },
   });
 
@@ -274,6 +294,14 @@ export default function AdminTickets() {
     return 'User';
   };
 
+  const formatAssignee = (assignee: AdminTicketUser | null | undefined) => {
+    if (!assignee) return '';
+    const { first_name, last_name, username } = assignee;
+    if (first_name || last_name) return `${first_name || ''} ${last_name || ''}`.trim();
+    if (username) return `@${username}`;
+    return assignee.telegram_id ? String(assignee.telegram_id) : `#${assignee.id}`;
+  };
+
   const copyToClipboard = (text: string) => {
     void copyText(text);
   };
@@ -343,22 +371,39 @@ export default function AdminTickets() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Ticket List */}
         <div className="card lg:col-span-1">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-dark-100">{t('admin.tickets.list')}</h2>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-              className="input w-auto px-3 py-1.5 text-sm"
-            >
-              <option value="">{t('admin.tickets.allStatuses')}</option>
-              <option value="open">{t('admin.tickets.statusOpen')}</option>
-              <option value="pending">{t('admin.tickets.statusPending')}</option>
-              <option value="answered">{t('admin.tickets.statusAnswered')}</option>
-              <option value="closed">{t('admin.tickets.statusClosed')}</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAssignedFilter((prev) => (prev === 'me' ? '' : 'me'));
+                  setPage(1);
+                }}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition-all ${
+                  assignedFilter === 'me'
+                    ? 'border-accent-500/50 bg-accent-500/20 text-accent-400'
+                    : 'border-dark-700/50 text-dark-400 hover:border-dark-600 hover:text-dark-200'
+                }`}
+                title={t('admin.tickets.myTicketsHint', 'Тикеты, взятые вами в работу')}
+              >
+                {t('admin.tickets.myTickets', '🤝 Мои')}
+              </button>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="input w-auto px-3 py-1.5 text-sm"
+              >
+                <option value="">{t('admin.tickets.allStatuses')}</option>
+                <option value="open">{t('admin.tickets.statusOpen')}</option>
+                <option value="pending">{t('admin.tickets.statusPending')}</option>
+                <option value="answered">{t('admin.tickets.statusAnswered')}</option>
+                <option value="closed">{t('admin.tickets.statusClosed')}</option>
+              </select>
+            </div>
           </div>
 
           {ticketsLoading ? (
@@ -393,6 +438,11 @@ export default function AdminTickets() {
                       )}
                     </span>
                   </div>
+                  {ticket.assigned_to && (
+                    <div className="mb-1 text-xs text-accent-400">
+                      🤝 {formatAssignee(ticket.assigned_to)}
+                    </div>
+                  )}
                   <div className="text-xs text-dark-500">
                     {formatUser(ticket)}
                     {ticket.user?.telegram_id && (
@@ -523,6 +573,38 @@ export default function AdminTickets() {
                       {t(`admin.tickets.status${s.charAt(0).toUpperCase() + s.slice(1)}`)}
                     </button>
                   ))}
+                </div>
+
+                {/* Назначение тикета («взять/отпустить») */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {selectedTicket.assigned_to ? (
+                    <>
+                      <span className="rounded-lg border border-accent-500/30 bg-accent-500/10 px-3 py-1.5 text-xs text-accent-400">
+                        🤝 {t('admin.tickets.assignedTo', 'В работе у')}:{' '}
+                        {formatAssignee(selectedTicket.assigned_to)}
+                      </span>
+                      {canAssign && selectedTicket.status !== 'closed' && (
+                        <button
+                          onClick={() => releaseMutation.mutate(selectedTicket.id)}
+                          disabled={releaseMutation.isPending}
+                          className="rounded-lg border border-dark-700/50 px-3 py-1.5 text-xs text-dark-400 transition-colors hover:border-dark-600 hover:text-dark-200 disabled:opacity-50"
+                        >
+                          {t('admin.tickets.releaseTicket', '↩️ Отпустить')}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    canAssign &&
+                    selectedTicket.status !== 'closed' && (
+                      <button
+                        onClick={() => takeMutation.mutate(selectedTicket.id)}
+                        disabled={takeMutation.isPending}
+                        className="rounded-lg border border-accent-500/30 bg-accent-500/10 px-3 py-1.5 text-xs text-accent-400 transition-colors hover:bg-accent-500/20 disabled:opacity-50"
+                      >
+                        {t('admin.tickets.takeTicket', '✋ Взять тикет')}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
 
