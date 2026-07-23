@@ -677,6 +677,10 @@
     "currentBalance": "Current Balance",
     "topUp": "Top Up",
     "topUpBalance": "Top Up Balance",
+    "donate": "Support",
+    "donationFlowTitle": "Donation",
+    "selectDonationMethod": "Choose a donation method",
+    "donationNotice": "This is a donation — the amount is not credited to your balance, it goes toward developing the project.",
     "enterAmount": "Enter amount",
     "paymentMethod": "Payment Method",
     "paymentMethods": {
@@ -766,6 +770,7 @@
     "withdrawal": "Withdrawal",
     "subscriptionPayment": "Subscription Payment",
     "referralReward": "Referral Reward",
+    "donation": "Donation",
     "minAmount": "Min.",
     "maxAmount": "Max.",
     "notAvailable": "Not available",
@@ -851,6 +856,9 @@
       "topUpAmount": "Top-up amount",
       "success": "Balance Topped Up!",
       "successDesc": "Your balance has been topped up successfully. The funds are now available.",
+      "donationAmount": "Donation amount",
+      "donationSuccess": "Thank you for your support!",
+      "donationSuccessDesc": "Your donation has been received. Thank you for helping the project grow! ❤️",
       "failed": "Payment Failed",
       "failedDesc": "Unfortunately, the payment was not completed. Please try again or choose a different payment method.",
       "timeout": "Taking Longer Than Expected",
@@ -859,6 +867,13 @@
       "tryAgain": "Try Again"
     },
     "top_up": "Top up balance"
+  },
+  "supportProject": {
+    "button": "Support the project",
+    "title": "Support the project",
+    "badge": "Donation",
+    "description": "All the money goes toward increasing server capacity and connection speed 🛼",
+    "cta": "Support the project"
   },
   "referral": {
     "title": "Referral Program",
@@ -1326,6 +1341,7 @@
         "renewals": "Renewals",
         "addons": "Add-ons",
         "deposits": "Deposits",
+        "donations": "Donations",
         "payment": "Payments"
       },
       "summary": {
@@ -1389,6 +1405,13 @@
         "dailyChart": "Daily Deposits",
         "dailyByMethod": "Daily Deposits by Payment Method",
         "revenue": "Revenue"
+      },
+      "donations": {
+        "totalAmount": "Total donated",
+        "donorsCount": "Donors",
+        "avgPerDonor": "Avg per donor",
+        "topSponsors": "Top sponsors",
+        "anonymous": "Anonymous"
       },
       "payments": {
         "successRate": "Payment success rate",
@@ -3323,6 +3346,7 @@
         "loadMore": "Show more",
         "noRequests": "No requests",
         "totalSpent": "Total spent",
+        "totalDonated": "Donated",
         "purchases": "Purchases",
         "campaign": "Advertising campaign",
         "referralsList": "Referrals list",

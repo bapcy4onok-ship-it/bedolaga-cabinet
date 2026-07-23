@@ -34,8 +34,17 @@ function AmountDisplay({ amountKopeks, label }: { amountKopeks: number; label: s
   );
 }
 
-function PendingState({ amountKopeks }: { amountKopeks: number | null }) {
+function PendingState({
+  amountKopeks,
+  isDonation,
+}: {
+  amountKopeks: number | null;
+  isDonation: boolean;
+}) {
   const { t } = useTranslation();
+  const amountLabel = isDonation
+    ? t('balance.topUpResult.donationAmount')
+    : t('balance.topUpResult.topUpAmount');
 
   return (
     <motion.div
@@ -51,19 +60,35 @@ function PendingState({ amountKopeks }: { amountKopeks: number | null }) {
         <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.awaitingPaymentDesc')}</p>
       </div>
       {amountKopeks != null && amountKopeks > 0 && (
-        <AmountDisplay amountKopeks={amountKopeks} label={t('balance.topUpResult.topUpAmount')} />
+        <AmountDisplay amountKopeks={amountKopeks} label={amountLabel} />
       )}
     </motion.div>
   );
 }
 
-function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
+function SuccessState({
+  amountKopeks,
+  isDonation,
+}: {
+  amountKopeks: number | null;
+  isDonation: boolean;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleGoToBalance = useCallback(() => {
     navigate('/balance', { replace: true });
   }, [navigate]);
+
+  const title = isDonation
+    ? t('balance.topUpResult.donationSuccess')
+    : t('balance.topUpResult.success');
+  const desc = isDonation
+    ? t('balance.topUpResult.donationSuccessDesc')
+    : t('balance.topUpResult.successDesc');
+  const amountLabel = isDonation
+    ? t('balance.topUpResult.donationAmount')
+    : t('balance.topUpResult.topUpAmount');
 
   return (
     <motion.div
@@ -74,12 +99,12 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
       <AnimatedCheckmark />
 
       <div>
-        <h1 className="text-xl font-bold text-dark-50">{t('balance.topUpResult.success')}</h1>
-        <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.successDesc')}</p>
+        <h1 className="text-xl font-bold text-dark-50">{title}</h1>
+        <p className="mt-2 text-sm text-dark-400">{desc}</p>
       </div>
 
       {amountKopeks != null && amountKopeks > 0 && (
-        <AmountDisplay amountKopeks={amountKopeks} label={t('balance.topUpResult.topUpAmount')} />
+        <AmountDisplay amountKopeks={amountKopeks} label={amountLabel} />
       )}
 
       <button
@@ -93,13 +118,23 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
   );
 }
 
-function FailedState({ amountKopeks }: { amountKopeks: number | null }) {
+function FailedState({
+  amountKopeks,
+  isDonation,
+}: {
+  amountKopeks: number | null;
+  isDonation: boolean;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleTryAgain = useCallback(() => {
     navigate('/balance', { replace: true });
   }, [navigate]);
+
+  const amountLabel = isDonation
+    ? t('balance.topUpResult.donationAmount')
+    : t('balance.topUpResult.topUpAmount');
 
   return (
     <motion.div
@@ -115,7 +150,7 @@ function FailedState({ amountKopeks }: { amountKopeks: number | null }) {
       </div>
 
       {amountKopeks != null && amountKopeks > 0 && (
-        <AmountDisplay amountKopeks={amountKopeks} label={t('balance.topUpResult.topUpAmount')} />
+        <AmountDisplay amountKopeks={amountKopeks} label={amountLabel} />
       )}
 
       <button
@@ -291,6 +326,7 @@ export default function TopUpResult() {
 
   // Determine current visual state
   const amountKopeks = effectivePayment?.amount_kopeks ?? pendingInfo?.amount_kopeks ?? null;
+  const isDonation = pendingInfo?.purpose === 'donation';
 
   const resolvedPaid =
     isRedirectSuccess ||
@@ -340,13 +376,13 @@ export default function TopUpResult() {
         aria-atomic="true"
       >
         {resolvedPaid ? (
-          <SuccessState amountKopeks={amountKopeks} />
+          <SuccessState amountKopeks={amountKopeks} isDonation={isDonation} />
         ) : resolvedFailed ? (
-          <FailedState amountKopeks={amountKopeks} />
+          <FailedState amountKopeks={amountKopeks} isDonation={isDonation} />
         ) : pollTimedOut ? (
           <TimeoutState onRetry={handleRetryPoll} onGoBack={handleGoBack} />
         ) : (
-          <PendingState amountKopeks={amountKopeks} />
+          <PendingState amountKopeks={amountKopeks} isDonation={isDonation} />
         )}
       </div>
     </div>

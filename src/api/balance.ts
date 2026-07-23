@@ -38,11 +38,14 @@ export const balanceApi = {
     return response.data;
   },
 
-  // Create top-up payment
+  // Create top-up payment.
+  // `purpose: 'donation'` — оплата-пожертвование через те же платёжные системы;
+  // бэкенд НЕ зачисляет сумму на баланс, а учитывает её отдельной статистикой.
   createTopUp: async (
     amountKopeks: number,
     paymentMethod: string,
     paymentOption?: string,
+    purpose?: 'donation',
   ): Promise<{
     payment_id: string;
     payment_url: string;
@@ -55,6 +58,7 @@ export const balanceApi = {
       amount_kopeks: number;
       payment_method: string;
       payment_option?: string;
+      purpose?: 'donation';
       language?: string;
     } = {
       amount_kopeks: amountKopeks,
@@ -62,6 +66,9 @@ export const balanceApi = {
     };
     if (paymentOption) {
       payload.payment_option = paymentOption;
+    }
+    if (purpose) {
+      payload.purpose = purpose;
     }
     payload.language = i18n.language || 'ru';
     const response = await apiClient.post('/cabinet/balance/topup', payload);
@@ -89,17 +96,24 @@ export const balanceApi = {
     return response.data;
   },
 
-  // Create Telegram Stars invoice for Mini App balance top-up
+  // Create Telegram Stars invoice for Mini App balance top-up.
+  // `purpose: 'donation'` — как и в createTopUp, помечает платёж как пожертвование
+  // (бэкенд не зачисляет его на баланс).
   createStarsInvoice: async (
     amountKopeks: number,
+    purpose?: 'donation',
   ): Promise<{
     invoice_url: string;
     stars_amount?: number;
     amount_kopeks?: number;
   }> => {
-    const response = await apiClient.post('/cabinet/balance/stars-invoice', {
+    const payload: { amount_kopeks: number; purpose?: 'donation' } = {
       amount_kopeks: amountKopeks,
-    });
+    };
+    if (purpose) {
+      payload.purpose = purpose;
+    }
+    const response = await apiClient.post('/cabinet/balance/stars-invoice', payload);
     return response.data;
   },
 

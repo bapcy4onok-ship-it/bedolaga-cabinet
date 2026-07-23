@@ -1199,6 +1199,7 @@
         "renewals": "续订",
         "addons": "附加服务",
         "deposits": "充值",
+        "donations": "捐赠",
         "payment": "支付"
       },
       "summary": {
@@ -1262,6 +1263,13 @@
         "dailyChart": "每日充值",
         "dailyByMethod": "每日按支付方式充值",
         "revenue": "收入"
+      },
+      "donations": {
+        "totalAmount": "捐赠总额",
+        "donorsCount": "捐赠人数",
+        "avgPerDonor": "人均捐赠",
+        "topSponsors": "顶级赞助者",
+        "anonymous": "匿名"
       },
       "payments": {
         "successRate": "支付成功率",
@@ -2904,6 +2912,7 @@
         "loadMore": "显示更多",
         "noRequests": "没有请求",
         "totalSpent": "总消费",
+        "totalDonated": "已捐赠",
         "purchases": "购买次数",
         "campaign": "广告活动",
         "referralsList": "推荐列表",

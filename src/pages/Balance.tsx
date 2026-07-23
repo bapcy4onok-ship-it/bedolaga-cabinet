@@ -105,6 +105,9 @@ export default function Balance() {
         return 'badge-warning';
       case 'WITHDRAWAL':
         return 'badge-error';
+      case 'DONATION':
+      case 'DONATE':
+        return 'badge-donation';
       default:
         return 'badge-neutral';
     }
@@ -120,6 +123,9 @@ export default function Balance() {
         return t('balance.referralReward');
       case 'WITHDRAWAL':
         return t('balance.withdrawal');
+      case 'DONATION':
+      case 'DONATE':
+        return t('balance.donation');
       default:
         return type;
     }
@@ -389,15 +395,21 @@ export default function Balance() {
                       animate="animate"
                     >
                       {transactions.items.map((tx) => {
+                        const txType = normalizeType(tx.type);
+                        const isDonation = txType === 'DONATION' || txType === 'DONATE';
                         const isZero = tx.amount_rubles === 0;
                         const isPositive = tx.amount_rubles > 0;
                         const displayAmount = Math.abs(tx.amount_rubles);
-                        const sign = isZero ? '' : isPositive ? '+' : '-';
-                        const colorClass = isZero
-                          ? 'text-dark-400'
-                          : isPositive
-                            ? 'text-success-400'
-                            : 'text-error-400';
+                        // Пожертвование — не пополнение баланса: показываем нейтрально
+                        // (розовый, без зелёного «+»), в тон бейджу badge-donation.
+                        const sign = isDonation || isZero ? '' : isPositive ? '+' : '-';
+                        const colorClass = isDonation
+                          ? 'text-rose-400'
+                          : isZero
+                            ? 'text-dark-400'
+                            : isPositive
+                              ? 'text-success-400'
+                              : 'text-error-400';
 
                         return (
                           <motion.div

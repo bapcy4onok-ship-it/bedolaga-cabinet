@@ -1,5 +1,6 @@
 export { AddonsTab } from './AddonsTab';
 export { DepositsTab } from './DepositsTab';
+export { DonationsTab } from './DonationsTab';
 export { DonutChart } from './DonutChart';
 export { DualAreaChart } from './DualAreaChart';
 export { MultiSeriesAreaChart } from './MultiSeriesAreaChart';

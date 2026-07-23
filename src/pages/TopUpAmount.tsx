@@ -84,6 +84,7 @@ export default function TopUpAmount() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const returnTo = searchParams.get('returnTo');
+  const isDonation = searchParams.get('purpose') === 'donation';
   const initialAmountRubles = searchParams.get('amount')
     ? parseFloat(searchParams.get('amount')!)
     : undefined;
@@ -177,7 +178,8 @@ export default function TopUpAmount() {
   }, [method?.id, method?.options, selectedOption]);
 
   const starsPaymentMutation = useMutation({
-    mutationFn: (amountKopeks: number) => balanceApi.createStarsInvoice(amountKopeks),
+    mutationFn: (amountKopeks: number) =>
+      balanceApi.createStarsInvoice(amountKopeks, isDonation ? 'donation' : undefined),
     onSuccess: async (data) => {
       if (!data.invoice_url) {
         setError(t('balance.errors.noPaymentLink'));
@@ -219,7 +221,12 @@ export default function TopUpAmount() {
   >({
     mutationFn: (amountKopeks: number) => {
       if (!method) throw new Error('Method not loaded');
-      return balanceApi.createTopUp(amountKopeks, method.id, selectedOption || undefined);
+      return balanceApi.createTopUp(
+        amountKopeks,
+        method.id,
+        selectedOption || undefined,
+        isDonation ? 'donation' : undefined,
+      );
     },
     onSuccess: (data) => {
       const redirectUrl = data.payment_url || data.invoice_url;
@@ -236,6 +243,7 @@ export default function TopUpAmount() {
             method_name: displayName,
             payment_id: data.payment_id,
             created_at: Date.now(),
+            ...(isDonation ? { purpose: 'donation' as const } : {}),
           });
         }
 
@@ -433,6 +441,17 @@ export default function TopUpAmount() {
         </div>
       </motion.div>
 
+      {/* Donation notice — деньги идут проекту и не зачисляются на баланс */}
+      {isDonation && (
+        <motion.div
+          variants={staggerItem}
+          className="flex items-start gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4"
+        >
+          <span className="text-xl leading-none">❤️</span>
+          <p className="text-sm text-dark-300">{t('balance.donationNotice')}</p>
+        </motion.div>
+      )}
+
       {/* Payment options (if any) */}
       {hasOptions && orderedOptions.length > 0 && (
         <motion.div variants={staggerItem} className="space-y-2">
@@ -515,7 +534,7 @@ export default function TopUpAmount() {
             ) : (
               <>
                 <SparklesIcon className="h-4 w-4" />
-                <span>{t('balance.topUp')}</span>
+                <span>{isDonation ? t('balance.donate') : t('balance.topUp')}</span>
               </>
             )}
           </button>

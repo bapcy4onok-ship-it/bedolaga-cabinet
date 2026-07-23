@@ -127,6 +127,7 @@ export interface UserDetailResponse {
   promo_group: UserPromoGroupInfo | null;
   referral: UserReferralInfo;
   total_spent_kopeks: number;
+  total_donated_kopeks: number;
   purchase_count: number;
   used_promocodes: number;
   has_had_paid_subscription: boolean;

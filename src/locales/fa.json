@@ -1199,6 +1199,7 @@
         "renewals": "تمدید",
         "addons": "خدمات اضافی",
         "deposits": "شارژ",
+        "donations": "کمک‌های مالی",
         "payment": "پرداخت‌ها"
       },
       "summary": {
@@ -1262,6 +1263,13 @@
         "dailyChart": "شارژ روزانه",
         "dailyByMethod": "شارژ روزانه بر اساس روش پرداخت",
         "revenue": "درآمد"
+      },
+      "donations": {
+        "totalAmount": "مجموع کمک‌ها",
+        "donorsCount": "حامیان",
+        "avgPerDonor": "میانگین هر حامی",
+        "topSponsors": "برترین حامیان",
+        "anonymous": "ناشناس"
       },
       "payments": {
         "successRate": "نرخ موفقیت پرداخت",
@@ -2905,6 +2913,7 @@
         "loadMore": "نمایش بیشتر",
         "noRequests": "بدون درخواست",
         "totalSpent": "کل هزینه",
+        "totalDonated": "کمک‌شده",
         "purchases": "خریدها",
         "campaign": "کمپین تبلیغاتی",
         "referralsList": "لیست ارجاعات",

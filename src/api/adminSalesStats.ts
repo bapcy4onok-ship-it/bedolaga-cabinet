@@ -182,6 +182,24 @@ export interface PaymentHealth {
   by_gateway: GatewaySuccessItem[];
 }
 
+// ============ Donations ("Support the project") ============
+
+export interface DonorItem {
+  user_id: number | null;
+  donor_telegram_id: number | null;
+  donor_username: string | null;
+  donor_name: string | null;
+  donations_count: number;
+  total_kopeks: number;
+  last_donation_at: string | null;
+}
+
+export interface DonationsStats {
+  total_amount_kopeks: number;
+  donors_count: number;
+  top_donors: DonorItem[];
+}
+
 // ============ API ============
 
 export const salesStatsApi = {
@@ -217,6 +235,11 @@ export const salesStatsApi = {
 
   getPaymentHealth: async (params: SalesStatsParams = {}): Promise<PaymentHealth> => {
     const response = await apiClient.get('/cabinet/admin/stats/sales/payment-health', { params });
+    return response.data;
+  },
+
+  getDonations: async (params: SalesStatsParams = {}): Promise<DonationsStats> => {
+    const response = await apiClient.get('/cabinet/admin/stats/sales/donations', { params });
     return response.data;
   },
 };

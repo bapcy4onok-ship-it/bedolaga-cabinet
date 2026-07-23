@@ -7,6 +7,9 @@ export interface TopUpPendingInfo {
   method_name: string;
   payment_id: string;
   created_at: number; // Date.now()
+  // 'donation' — оплата-пожертвование: идёт через те же платёжные системы, но НЕ
+  // зачисляется на баланс (учитывается отдельной статистикой на бэкенде).
+  purpose?: 'donation';
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -46,6 +49,7 @@ export function loadTopUpPendingInfo(): TopUpPendingInfo | null {
       method_name: parsed.method_name as string,
       payment_id: parsed.payment_id as string,
       created_at: parsed.created_at as number,
+      purpose: parsed.purpose === 'donation' ? 'donation' : undefined,
     };
   } catch {
     return null;

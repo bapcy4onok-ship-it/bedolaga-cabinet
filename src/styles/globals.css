@@ -672,6 +672,10 @@ img.twemoji {
     @apply badge border border-dark-600/50 bg-dark-700/50 text-dark-300;
   }
 
+  .badge-donation {
+    @apply badge border border-rose-500/30 bg-rose-500/15 text-rose-400;
+  }
+
   /* Stat card - Dark */
   .stat-value {
     @apply text-2xl font-bold text-dark-50 sm:text-3xl;
@@ -836,6 +840,10 @@ img.twemoji {
 
   .light .badge-neutral {
     @apply border border-champagne-300 bg-champagne-200/50 text-champagne-700;
+  }
+
+  .light .badge-donation {
+    @apply border border-rose-200 bg-rose-50 text-rose-700;
   }
 
   /* Stat card - Light */

@@ -20,12 +20,15 @@ export default function TopUpMethodSelect() {
     queryFn: balanceApi.getPaymentMethods,
   });
 
+  const isDonation = searchParams.get('purpose') === 'donation';
+
   const handleMethodClick = (methodId: string) => {
     const params = new URLSearchParams();
     const amount = searchParams.get('amount');
     const returnTo = searchParams.get('returnTo');
     if (amount) params.set('amount', amount);
     if (returnTo) params.set('returnTo', returnTo);
+    if (isDonation) params.set('purpose', 'donation');
     const qs = params.toString();
     navigate(`/balance/top-up/${methodId}${qs ? `?${qs}` : ''}`);
   };
@@ -39,9 +42,19 @@ export default function TopUpMethodSelect() {
     >
       <motion.div variants={staggerItem}>
         <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
-          {t('balance.selectPaymentMethod')}
+          {isDonation ? t('balance.selectDonationMethod') : t('balance.selectPaymentMethod')}
         </h1>
       </motion.div>
+
+      {isDonation && (
+        <motion.div
+          variants={staggerItem}
+          className="flex items-start gap-3 rounded-linear border border-rose-500/30 bg-rose-500/10 p-4"
+        >
+          <span className="text-xl leading-none">❤️</span>
+          <p className="text-sm text-dark-300">{t('balance.donationNotice')}</p>
+        </motion.div>
+      )}
 
       <motion.div variants={staggerItem}>
         <Card>

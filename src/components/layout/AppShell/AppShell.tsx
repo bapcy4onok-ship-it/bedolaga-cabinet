@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import WebSocketNotifications from '@/components/WebSocketNotifications';
 import CampaignBonusNotifier from '@/components/CampaignBonusNotifier';
 import SuccessNotificationModal from '@/components/SuccessNotificationModal';
+import SupportProjectButton from '@/components/SupportProjectButton';
 import { PromptDialogHost } from '@/components/PromptDialogHost';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import TicketNotificationBell from '@/components/TicketNotificationBell';
@@ -304,6 +305,9 @@ export function AppShell({ children }: AppShellProps) {
         referralEnabled={referralEnabled}
         wheelEnabled={wheelEnabled}
       />
+
+      {/* "Поддержать проект" — плавающая кнопка в углу (кроме админки) */}
+      {!location.pathname.startsWith('/admin') && <SupportProjectButton />}
     </div>
   );
 }

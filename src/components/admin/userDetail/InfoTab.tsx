@@ -179,6 +179,14 @@ export function InfoTab(props: InfoTabProps) {
           <div className="mb-1 text-xs text-dark-500">{t('admin.users.detail.totalSpent')}</div>
           <div className="text-dark-100">{formatWithCurrency(user.total_spent_kopeks / 100)}</div>
         </div>
+        {user.total_donated_kopeks > 0 && (
+          <div className="rounded-xl bg-dark-800/50 p-3">
+            <div className="mb-1 text-xs text-dark-500">{t('admin.users.detail.totalDonated')}</div>
+            <div className="text-rose-400">
+              {formatWithCurrency(user.total_donated_kopeks / 100)}
+            </div>
+          </div>
+        )}
         <div className="rounded-xl bg-dark-800/50 p-3">
           <div className="mb-1 text-xs text-dark-500">{t('admin.users.detail.purchases')}</div>
           <div className="text-dark-100">{user.purchase_count}</div>
