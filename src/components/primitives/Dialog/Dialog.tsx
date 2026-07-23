@@ -79,7 +79,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
               <DialogPrimitive.Content
                 ref={ref}
                 className={cn(
-                  'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
+                  'fixed left-1/2 top-1/2 z-50',
                   'max-h-[85vh] w-full max-w-lg',
                   'grid gap-4 overflow-auto',
                   'rounded-linear-lg border border-dark-700/50 bg-dark-900/95 backdrop-blur-linear',
@@ -90,7 +90,13 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 asChild
                 {...props}
               >
+                {/* Центрирование сдвигом −50% отдаём framer-motion (x/y), а НЕ
+                    Tailwind-классу -translate-*: variants={scale} пишет transform
+                    inline и затирает CSS-transform из класса, из-за чего диалог
+                    уезжал вправо-вниз от центра. x/y попадают в тот же transform,
+                    что и scale, поэтому центрирование сохраняется при анимации. */}
                 <motion.div
+                  style={{ x: '-50%', y: '-50%' }}
                   variants={scale}
                   initial="initial"
                   animate="animate"
