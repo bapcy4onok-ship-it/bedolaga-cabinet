@@ -11,6 +11,9 @@ import {
 } from '@/components/primitives/Dialog';
 import { useCurrency } from '../hooks/useCurrency';
 
+/** Меньше рубля надбавка не имеет смысла — и ломает сверку обещания по сумме. */
+const MIN_TIP_KOPEKS = 100;
+
 interface DonationUpsellDialogProps {
   open: boolean;
   /** Сумма пополнения в копейках — надбавка добавляется к ней. */
@@ -53,6 +56,21 @@ export default function DonationUpsellDialog({
 
   const rub = (kopeks: number) => formatWithCurrency(kopeks / 100);
 
+  /**
+   * Приводит введённое к обычному числу. В фарси-локали суммы в диалоге
+   * отрисованы персидскими цифрами (formatAmount → toLocaleString('fa-IR')),
+   * и человек естественно набирает или вставляет именно их. Плюс убираем
+   * разделители разрядов, которые тот же toLocaleString расставляет сам.
+   */
+  const parseTyped = (raw: string): number => {
+    const normalized = raw
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[\s\u00a0\u202f\u066c\u2019']/g, '')
+      .replace(',', '.');
+    return parseFloat(normalized);
+  };
+
   const decide = (tip: number) => {
     haptic.impact(tip > 0 ? 'medium' : 'light');
     onDecide(tip);
@@ -62,10 +80,14 @@ export default function DonationUpsellDialog({
     // Пользователь вводит сумму в СВОЕЙ валюте — весь диалог показан в ней же
     // (formatWithCurrency конвертирует рубли в валюту локали). Без обратной
     // конвертации ввод «50000» в фарси-локали уходил бы как 50 000 ₽ вместо ~120 ₽.
-    const typed = parseFloat(customValue.replace(',', '.'));
+    const typed = parseTyped(customValue);
     const parsed = Number.isFinite(typed) ? Math.round(convertToRub(typed) * 100) : NaN;
-    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > maxTipKopeks) {
-      setCustomError(t('donationUpsell.customInvalid', { max: rub(maxTipKopeks) }));
+    // Нижняя граница в рублях: без неё в неруб­лёвых локалях проходила надбавка
+    // в одну копейку, для которой окно сверки обещания вырождается в ноль.
+    if (!Number.isFinite(parsed) || parsed < MIN_TIP_KOPEKS || parsed > maxTipKopeks) {
+      setCustomError(
+        t('donationUpsell.customInvalid', { min: rub(MIN_TIP_KOPEKS), max: rub(maxTipKopeks) }),
+      );
       return;
     }
     decide(parsed);
@@ -122,7 +144,7 @@ export default function DonationUpsellDialog({
               </div>
             )}
             <input
-              type="number"
+              type="text"
               inputMode="decimal"
               value={customValue}
               onChange={(event) => {

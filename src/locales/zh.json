@@ -4927,9 +4927,9 @@
     "description": "在本次付款中增加 {{tip}}？这笔钱用于提升服务器容量和连接速度。",
     "accept": "支持 — {{total}}",
     "otherAmount": "其他金额",
-    "decline": "暂不",
+    "decline": "直接付款",
     "customPlaceholder": "自定义金额（{{currency}}）",
     "confirmCustom": "添加到付款",
-    "customInvalid": "请输入大于零且不超过 {{max}} 的金额"
+    "customInvalid": "请输入 {{min}} 到 {{max}} 之间的金额"
   }
 }

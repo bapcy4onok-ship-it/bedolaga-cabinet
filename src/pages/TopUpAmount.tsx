@@ -108,6 +108,9 @@ export default function TopUpAmount() {
     staleTime: 60_000,
   });
 
+  // Сумма, для которой показана модалка апселла: оплата ждёт решения пользователя.
+  const [pendingAmountKopeks, setPendingAmountKopeks] = useState<number | null>(null);
+
   const handleNavigateBack = useCallback(() => {
     navigate(-1);
   }, [navigate]);
@@ -128,14 +131,16 @@ export default function TopUpAmount() {
       // вешает свой listener в фазе перехвата и делает preventDefault, но не
       // stopPropagation). Без этой проверки одно нажатие Esc на модалке апселла
       // и закрывало её, и уводило со страницы.
-      if (e.key === 'Escape' && !e.defaultPrevented) {
+      // Явная проверка открытого оверлея — на случай оверлеев, которые
+      // preventDefault'ят уже после нас (bubble), и defaultPrevented не спасёт.
+      if (e.key === 'Escape' && !e.defaultPrevented && pendingAmountKopeks === null) {
         e.preventDefault();
         handleNavigateBack();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleNavigateBack]);
+  }, [handleNavigateBack, pendingAmountKopeks]);
 
   // Auto-redirect when success notification appears (e.g., balance topped up via WebSocket)
   useCloseOnSuccessNotification(handleSuccess);
@@ -162,8 +167,6 @@ export default function TopUpAmount() {
   // round-trip that could push a min-amount chip just below the allowed minimum. Cleared
   // as soon as the user edits the field by hand.
   const [quickRub, setQuickRub] = useState<number | null>(null);
-  // Сумма, для которой показана модалка апселла: оплата ждёт решения пользователя.
-  const [pendingAmountKopeks, setPendingAmountKopeks] = useState<number | null>(null);
 
   // Once methods have loaded, redirect to method selection if this method id is unknown.
   useEffect(() => {
@@ -337,6 +340,15 @@ export default function TopUpAmount() {
   const isStarsMethod = methodKey.includes('stars');
 
   const startPayment = (amountKopeks: number, tip: number | null) => {
+    // Лимит тратим здесь, а не в handleSubmit: показ модалки апселла — ещё не
+    // попытка оплаты, и закрытие окна не должно приближать человека к
+    // «слишком много попыток».
+    if (!checkRateLimit(RATE_LIMIT_KEYS.PAYMENT, 3, 30000)) {
+      setError(
+        t('balance.errors.rateLimit', { seconds: getRateLimitResetTime(RATE_LIMIT_KEYS.PAYMENT) }),
+      );
+      return;
+    }
     if (isStarsMethod) {
       starsPaymentMutation.mutate({ amountKopeks, tip });
     } else {
@@ -362,12 +374,6 @@ export default function TopUpAmount() {
     setPaymentUrl(null);
     inputRef.current?.blur();
 
-    if (!checkRateLimit(RATE_LIMIT_KEYS.PAYMENT, 3, 30000)) {
-      setError(
-        t('balance.errors.rateLimit', { seconds: getRateLimitResetTime(RATE_LIMIT_KEYS.PAYMENT) }),
-      );
-      return;
-    }
     if (hasOptions && !selectedOption) {
       setError(t('balance.errors.selectMethod'));
       return;

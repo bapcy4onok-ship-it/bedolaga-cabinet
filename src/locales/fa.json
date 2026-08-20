@@ -4928,9 +4928,9 @@
     "description": "مبلغ {{tip}} به پرداخت اضافه شود؟ صرف افزایش ظرفیت سرورها و سرعت اتصال می‌شود.",
     "accept": "حمایت — {{total}}",
     "otherAmount": "مبلغ دیگر",
-    "decline": "الان نه",
+    "decline": "پرداخت بدون حمایت",
     "customPlaceholder": "مبلغ دلخواه، {{currency}}",
     "confirmCustom": "افزودن به پرداخت",
-    "customInvalid": "مبلغی بیشتر از صفر و حداکثر {{max}} وارد کنید"
+    "customInvalid": "مبلغی بین {{min}} تا {{max}} وارد کنید"
   }
 }

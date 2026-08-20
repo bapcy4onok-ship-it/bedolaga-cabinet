@@ -881,10 +881,10 @@
     "description": "Add {{tip}} to your payment? It goes toward more server capacity and faster connections.",
     "accept": "Support — {{total}}",
     "otherAmount": "Other amount",
-    "decline": "Not now",
+    "decline": "Pay without support",
     "customPlaceholder": "Custom amount, {{currency}}",
     "confirmCustom": "Add to payment",
-    "customInvalid": "Enter an amount above zero and no more than {{max}}"
+    "customInvalid": "Enter an amount between {{min}} and {{max}}"
   },
   "referral": {
     "title": "Referral Program",
