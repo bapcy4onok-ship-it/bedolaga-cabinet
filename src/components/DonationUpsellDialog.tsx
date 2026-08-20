@@ -116,7 +116,7 @@ export default function DonationUpsellDialog({
                 'linear-gradient(135deg, rgba(244,63,94,0.18) 0%, rgba(236,72,153,0.18) 100%)',
             }}
           >
-            ⚡
+            ❤️
           </div>
           <DialogTitle className="text-center text-xl">{t('donationUpsell.title')}</DialogTitle>
           <div className="flex justify-center pt-1">
@@ -174,7 +174,7 @@ export default function DonationUpsellDialog({
               boxShadow: '0 8px 24px rgba(244, 63, 94, 0.3)',
             }}
           >
-            <span className="text-xl leading-none">⚡</span>
+            <span className="text-xl leading-none">❤️</span>
             <span>{t('donationUpsell.accept', { total: rub(topupKopeks + tipKopeks) })}</span>
           </button>
         )}
