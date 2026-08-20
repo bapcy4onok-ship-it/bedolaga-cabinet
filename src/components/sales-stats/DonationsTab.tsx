@@ -78,6 +78,54 @@ export function DonationsTab({ params }: DonationsTabProps) {
         />
       </div>
 
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <StatCard
+          label={t('admin.salesStats.donations.fromMenu')}
+          value={formatWithCurrency((data.by_source?.menu ?? 0) / SALES_STATS.KOPEKS_DIVISOR, 0)}
+          icon={<BanknotesIcon className="h-5 w-5" />}
+          tone="neutral"
+        />
+        <StatCard
+          label={t('admin.salesStats.donations.fromUpsell')}
+          value={formatWithCurrency(
+            (data.by_source?.topup_upsell ?? 0) / SALES_STATS.KOPEKS_DIVISOR,
+            0,
+          )}
+          icon={<BanknotesIcon className="h-5 w-5" />}
+          tone="accent"
+        />
+      </div>
+
+      <div className="bento-card">
+        <h4 className="mb-3 text-sm font-semibold text-dark-200">
+          {t('admin.salesStats.donations.funnelTitle')}
+        </h4>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div className="text-lg font-bold text-dark-100">{data.upsell_funnel?.shown ?? 0}</div>
+            <div className="text-xs text-dark-400">
+              {t('admin.salesStats.donations.funnelShown')}
+            </div>
+          </div>
+          <div>
+            <div className="text-lg font-bold text-dark-100">
+              {data.upsell_funnel?.accepted ?? 0}
+            </div>
+            <div className="text-xs text-dark-400">
+              {t('admin.salesStats.donations.funnelAccepted')}
+            </div>
+          </div>
+          <div>
+            <div className="text-lg font-bold text-rose-400">
+              {data.upsell_funnel?.applied ?? 0}
+            </div>
+            <div className="text-xs text-dark-400">
+              {t('admin.salesStats.donations.funnelApplied')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bento-card">
         <h4 className="mb-3 text-sm font-semibold text-dark-200">
           {t('admin.salesStats.donations.topSponsors')}

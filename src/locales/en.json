@@ -875,6 +875,17 @@
     "description": "All the money goes toward increasing server capacity and connection speed 🛼",
     "cta": "Support the project"
   },
+  "donationUpsell": {
+    "title": "Support the project?",
+    "badge": "Not credited to balance",
+    "description": "Add {{tip}} to your payment? It goes toward more server capacity and faster connections.",
+    "accept": "Support — {{total}}",
+    "otherAmount": "Other amount",
+    "decline": "Not now",
+    "customPlaceholder": "Custom amount, ₽",
+    "confirmCustom": "Add to payment",
+    "customInvalid": "Enter an amount between 1 ₽ and {{max}}"
+  },
   "referral": {
     "title": "Referral Program",
     "yourLink": "Your Referral Links",
@@ -1411,7 +1422,13 @@
         "donorsCount": "Donors",
         "avgPerDonor": "Avg per donor",
         "topSponsors": "Top sponsors",
-        "anonymous": "Anonymous"
+        "anonymous": "Anonymous",
+        "fromMenu": "From «Support» menu",
+        "fromUpsell": "Add-on at checkout",
+        "funnelTitle": "Checkout offer funnel",
+        "funnelShown": "Shown",
+        "funnelAccepted": "Accepted",
+        "funnelApplied": "Paid"
       },
       "payments": {
         "successRate": "Payment success rate",

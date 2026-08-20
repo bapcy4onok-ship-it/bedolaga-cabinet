@@ -400,9 +400,12 @@ export default function Balance() {
                         const isZero = tx.amount_rubles === 0;
                         const isPositive = tx.amount_rubles > 0;
                         const displayAmount = Math.abs(tx.amount_rubles);
-                        // Пожертвование — не пополнение баланса: показываем нейтрально
+                        // Обычное пожертвование баланс не двигает — показываем нейтрально
                         // (розовый, без зелёного «+»), в тон бейджу badge-donation.
-                        const sign = isDonation || isZero ? '' : isPositive ? '+' : '-';
+                        // Надбавка при пополнении баланс УМЕНЬШИЛА: сервер отдаёт её
+                        // отрицательной суммой, и знак «−» у неё обязателен, иначе
+                        // столбик истории не сходится.
+                        const sign = isZero ? '' : isPositive ? (isDonation ? '' : '+') : '-';
                         const colorClass = isDonation
                           ? 'text-rose-400'
                           : isZero

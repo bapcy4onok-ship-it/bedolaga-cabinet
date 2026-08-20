@@ -198,6 +198,12 @@ export interface DonationsStats {
   total_amount_kopeks: number;
   donors_count: number;
   top_donors: DonorItem[];
+  // Суммы по источнику: 'menu' — кнопка «Поддержать проект», 'topup_upsell' —
+  // надбавка к пополнению. Надбавки уже учтены и внутри статистики пополнений:
+  // реальный платёж был на сумму «пополнение + надбавка».
+  by_source?: Record<string, number>;
+  // Воронка апселла: shown / accepted / applied / declined.
+  upsell_funnel?: Record<string, number>;
 }
 
 // ============ API ============

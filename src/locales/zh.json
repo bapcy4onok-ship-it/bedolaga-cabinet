@@ -1269,7 +1269,13 @@
         "donorsCount": "捐赠人数",
         "avgPerDonor": "人均捐赠",
         "topSponsors": "顶级赞助者",
-        "anonymous": "匿名"
+        "anonymous": "匿名",
+        "fromMenu": "来自“支持”菜单",
+        "fromUpsell": "结账时追加",
+        "funnelTitle": "结账提议漏斗",
+        "funnelShown": "展示",
+        "funnelAccepted": "接受",
+        "funnelApplied": "已支付"
       },
       "payments": {
         "successRate": "支付成功率",
@@ -4914,5 +4920,16 @@
     "offer": "公开要约",
     "privacy": "隐私政策",
     "recurrent": "定期付款"
+  },
+  "donationUpsell": {
+    "title": "支持项目？",
+    "badge": "不计入余额",
+    "description": "在本次付款中增加 {{tip}}？这笔钱用于提升服务器容量和连接速度。",
+    "accept": "支持 — {{total}}",
+    "otherAmount": "其他金额",
+    "decline": "暂不",
+    "customPlaceholder": "自定义金额（卢布）",
+    "confirmCustom": "添加到付款",
+    "customInvalid": "请输入 1 ₽ 到 {{max}} 之间的金额"
   }
 }

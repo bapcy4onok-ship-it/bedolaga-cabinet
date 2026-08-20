@@ -10,7 +10,23 @@ import type {
   SavedCardsResponse,
 } from '../types';
 
+export interface DonationUpsellInfo {
+  available: boolean;
+  tip_kopeks: number;
+  presets_kopeks: number[];
+  min_topup_kopeks: number;
+  max_tip_kopeks: number;
+}
+
 export const balanceApi = {
+  // Донат-апселл: показывать ли предложение добавить сумму к платежу.
+  // Условия по сумме и способу оплаты кабинет проверяет сам, по этим значениям,
+  // чтобы не ходить на сервер перед каждой оплатой.
+  getDonationUpsell: async (): Promise<DonationUpsellInfo> => {
+    const response = await apiClient.get<DonationUpsellInfo>('/cabinet/balance/donation-upsell');
+    return response.data;
+  },
+
   // Get current balance
   getBalance: async (): Promise<Balance> => {
     const response = await apiClient.get<Balance>('/cabinet/balance');
@@ -46,6 +62,7 @@ export const balanceApi = {
     paymentMethod: string,
     paymentOption?: string,
     purpose?: 'donation',
+    donationTip?: { tipKopeks: number; shown: boolean },
   ): Promise<{
     payment_id: string;
     payment_url: string;
@@ -60,6 +77,8 @@ export const balanceApi = {
       payment_option?: string;
       purpose?: 'donation';
       language?: string;
+      donation_upsell_shown?: boolean;
+      donation_tip_kopeks?: number;
     } = {
       amount_kopeks: amountKopeks,
       payment_method: paymentMethod,
@@ -69,6 +88,12 @@ export const balanceApi = {
     }
     if (purpose) {
       payload.purpose = purpose;
+    }
+    // Донат-апселл: сервер сам прибавит надбавку к сумме и создаст «обещание».
+    // shown без tipKopeks (0) — пользователь отказался: нужно для cooldown и воронки.
+    if (donationTip?.shown) {
+      payload.donation_upsell_shown = true;
+      payload.donation_tip_kopeks = donationTip.tipKopeks;
     }
     payload.language = i18n.language || 'ru';
     const response = await apiClient.post('/cabinet/balance/topup', payload);
@@ -102,16 +127,26 @@ export const balanceApi = {
   createStarsInvoice: async (
     amountKopeks: number,
     purpose?: 'donation',
+    donationTip?: { tipKopeks: number; shown: boolean },
   ): Promise<{
     invoice_url: string;
     stars_amount?: number;
     amount_kopeks?: number;
   }> => {
-    const payload: { amount_kopeks: number; purpose?: 'donation' } = {
+    const payload: {
+      amount_kopeks: number;
+      purpose?: 'donation';
+      donation_upsell_shown?: boolean;
+      donation_tip_kopeks?: number;
+    } = {
       amount_kopeks: amountKopeks,
     };
     if (purpose) {
       payload.purpose = purpose;
+    }
+    if (donationTip?.shown) {
+      payload.donation_upsell_shown = true;
+      payload.donation_tip_kopeks = donationTip.tipKopeks;
     }
     const response = await apiClient.post('/cabinet/balance/stars-invoice', payload);
     return response.data;

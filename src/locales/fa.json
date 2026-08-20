@@ -1269,7 +1269,13 @@
         "donorsCount": "حامیان",
         "avgPerDonor": "میانگین هر حامی",
         "topSponsors": "برترین حامیان",
-        "anonymous": "ناشناس"
+        "anonymous": "ناشناس",
+        "fromMenu": "از منوی «حمایت»",
+        "fromUpsell": "افزودنی هنگام پرداخت",
+        "funnelTitle": "قیف پیشنهاد پرداخت",
+        "funnelShown": "نمایش",
+        "funnelAccepted": "پذیرفته",
+        "funnelApplied": "پرداخت‌شده"
       },
       "payments": {
         "successRate": "نرخ موفقیت پرداخت",
@@ -4915,5 +4921,16 @@
     "offer": "پیشنهاد عمومی",
     "privacy": "سیاست حفظ حریم خصوصی",
     "recurrent": "پرداخت‌های مکرر"
+  },
+  "donationUpsell": {
+    "title": "از پروژه حمایت می‌کنید؟",
+    "badge": "به موجودی اضافه نمی‌شود",
+    "description": "مبلغ {{tip}} به پرداخت اضافه شود؟ صرف افزایش ظرفیت سرورها و سرعت اتصال می‌شود.",
+    "accept": "حمایت — {{total}}",
+    "otherAmount": "مبلغ دیگر",
+    "decline": "الان نه",
+    "customPlaceholder": "مبلغ دلخواه، روبل",
+    "confirmCustom": "افزودن به پرداخت",
+    "customInvalid": "مبلغی بین ۱ روبل تا {{max}} وارد کنید"
   }
 }

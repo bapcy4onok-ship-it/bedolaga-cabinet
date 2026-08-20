@@ -12,6 +12,7 @@ import { useHaptic, usePlatform } from '@/platform';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import type { PaymentMethod, PaymentMethodOption } from '../types';
 import BentoCard from '../components/ui/BentoCard';
+import DonationUpsellDialog from '../components/DonationUpsellDialog';
 import { saveTopUpPendingInfo } from '../utils/topUpStorage';
 import { getSafeRedirectPath } from '../utils/safeRedirect';
 import { openPaymentUrl } from '../utils/openPaymentUrl';
@@ -99,6 +100,14 @@ export default function TopUpAmount() {
   });
   const method = methods?.find((m) => m.id === methodId);
 
+  // Донат-апселл. Донат сам по себе донат — в этом флоу предложение не нужно.
+  const { data: upsell } = useQuery({
+    queryKey: ['donation-upsell'],
+    queryFn: balanceApi.getDonationUpsell,
+    enabled: !isDonation,
+    staleTime: 60_000,
+  });
+
   const handleNavigateBack = useCallback(() => {
     navigate(-1);
   }, [navigate]);
@@ -149,6 +158,8 @@ export default function TopUpAmount() {
   // round-trip that could push a min-amount chip just below the allowed minimum. Cleared
   // as soon as the user edits the field by hand.
   const [quickRub, setQuickRub] = useState<number | null>(null);
+  // Сумма, для которой показана модалка апселла: оплата ждёт решения пользователя.
+  const [pendingAmountKopeks, setPendingAmountKopeks] = useState<number | null>(null);
 
   // Once methods have loaded, redirect to method selection if this method id is unknown.
   useEffect(() => {
@@ -178,8 +189,12 @@ export default function TopUpAmount() {
   }, [method?.id, method?.options, selectedOption]);
 
   const starsPaymentMutation = useMutation({
-    mutationFn: (amountKopeks: number) =>
-      balanceApi.createStarsInvoice(amountKopeks, isDonation ? 'donation' : undefined),
+    mutationFn: ({ amountKopeks, tip }: { amountKopeks: number; tip: number | null }) =>
+      balanceApi.createStarsInvoice(
+        amountKopeks,
+        isDonation ? 'donation' : undefined,
+        tip === null ? undefined : { tipKopeks: tip, shown: true },
+      ),
     onSuccess: async (data) => {
       if (!data.invoice_url) {
         setError(t('balance.errors.noPaymentLink'));
@@ -217,15 +232,16 @@ export default function TopUpAmount() {
       expires_at: string | null;
     },
     unknown,
-    number
+    { amountKopeks: number; tip: number | null }
   >({
-    mutationFn: (amountKopeks: number) => {
+    mutationFn: ({ amountKopeks, tip }) => {
       if (!method) throw new Error('Method not loaded');
       return balanceApi.createTopUp(
         amountKopeks,
         method.id,
         selectedOption || undefined,
         isDonation ? 'donation' : undefined,
+        tip === null ? undefined : { tipKopeks: tip, shown: true },
       );
     },
     onSuccess: (data) => {
@@ -315,6 +331,25 @@ export default function TopUpAmount() {
   const maxRubles = method.max_amount_kopeks / 100;
   const methodKey = method.id.toLowerCase().replace(/-/g, '_');
   const isStarsMethod = methodKey.includes('stars');
+
+  const startPayment = (amountKopeks: number, tip: number | null) => {
+    if (isStarsMethod) {
+      starsPaymentMutation.mutate({ amountKopeks, tip });
+    } else {
+      topUpMutation.mutate({ amountKopeks, tip });
+    }
+  };
+
+  // Условия, зависящие от суммы и способа, кабинет проверяет сам — по значениям
+  // из /donation-upsell. Сервер всё равно перепроверит: клиенту не доверяем.
+  const shouldOfferUpsell = (amountKopeks: number) =>
+    !isDonation &&
+    !!upsell?.available &&
+    upsell.tip_kopeks > 0 &&
+    amountKopeks >= upsell.min_topup_kopeks &&
+    method.id !== 'tribute' &&
+    method.id !== 'cryptobot' &&
+    amountKopeks + upsell.tip_kopeks <= method.max_amount_kopeks;
   const methodName =
     t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
 
@@ -376,11 +411,11 @@ export default function TopUpAmount() {
       targetCurrency === 'RUB' || usingPrefill || usingQuick
         ? Math.round(canonicalRubles * 100)
         : Math.ceil(canonicalRubles * 100);
-    if (isStarsMethod) {
-      starsPaymentMutation.mutate(amountKopeks);
-    } else {
-      topUpMutation.mutate(amountKopeks);
+    if (shouldOfferUpsell(amountKopeks)) {
+      setPendingAmountKopeks(amountKopeks);
+      return;
     }
+    startPayment(amountKopeks, null);
   };
 
   const quickAmounts = (
@@ -630,6 +665,24 @@ export default function TopUpAmount() {
             </button>
           </div>
         </motion.div>
+      )}
+
+      {pendingAmountKopeks !== null && upsell && (
+        <DonationUpsellDialog
+          open
+          topupKopeks={pendingAmountKopeks}
+          tipKopeks={upsell.tip_kopeks}
+          presetsKopeks={upsell.presets_kopeks}
+          maxTipKopeks={Math.min(
+            upsell.max_tip_kopeks,
+            method.max_amount_kopeks - pendingAmountKopeks,
+          )}
+          onDecide={(tipKopeks) => {
+            const amount = pendingAmountKopeks;
+            setPendingAmountKopeks(null);
+            startPayment(amount, tipKopeks);
+          }}
+        />
       )}
     </motion.div>
   );
