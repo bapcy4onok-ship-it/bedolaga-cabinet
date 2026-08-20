@@ -882,9 +882,9 @@
     "accept": "Support — {{total}}",
     "otherAmount": "Other amount",
     "decline": "Not now",
-    "customPlaceholder": "Custom amount, ₽",
+    "customPlaceholder": "Custom amount, {{currency}}",
     "confirmCustom": "Add to payment",
-    "customInvalid": "Enter an amount between 1 ₽ and {{max}}"
+    "customInvalid": "Enter an amount above zero and no more than {{max}}"
   },
   "referral": {
     "title": "Referral Program",

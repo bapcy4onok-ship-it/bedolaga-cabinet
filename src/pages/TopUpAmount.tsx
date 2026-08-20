@@ -124,7 +124,11 @@ export default function TopUpAmount() {
   // Keyboard: Escape to go back
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      // defaultPrevented — признак, что Escape уже обработал слой выше (Radix
+      // вешает свой listener в фазе перехвата и делает preventDefault, но не
+      // stopPropagation). Без этой проверки одно нажатие Esc на модалке апселла
+      // и закрывало её, и уводило со страницы.
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         e.preventDefault();
         handleNavigateBack();
       }
@@ -682,6 +686,7 @@ export default function TopUpAmount() {
             setPendingAmountKopeks(null);
             startPayment(amount, tipKopeks);
           }}
+          onCancel={() => setPendingAmountKopeks(null)}
         />
       )}
     </motion.div>

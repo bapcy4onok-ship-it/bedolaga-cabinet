@@ -18,8 +18,10 @@ interface DonationUpsellDialogProps {
   tipKopeks: number;
   presetsKopeks: number[];
   maxTipKopeks: number;
-  /** tipKopeks = 0 — пользователь отказался. Диалог всегда завершает оплату. */
+  /** tipKopeks = 0 — пользователь отказался: оплата продолжается без надбавки. */
   onDecide: (tipKopeks: number) => void;
+  /** Esc или клик вне окна: ничего не происходит — ни платежа, ни отметки отказа. */
+  onCancel: () => void;
 }
 
 /**
@@ -28,8 +30,10 @@ interface DonationUpsellDialogProps {
  * тот же rose→pink градиент и бейдж badge-donation, чтобы оба обращения за
  * поддержкой читались как одно и то же.
  *
- * Диалог нельзя «закрыть в никуда»: любой выход — это решение, и оплата
- * продолжается в любом случае (закрытие = отказ).
+ * Решение принимают только кнопки: «Поддержать» / пресет / своя сумма — согласие,
+ * «Не сейчас» — отказ (оплата идёт без надбавки). Esc и клик вне окна НЕ являются
+ * решением: они просто закрывают диалог и возвращают человека к вводу суммы, ничего
+ * не создавая. Иначе случайный Esc молча выпускал бы реальный платёж.
  */
 export default function DonationUpsellDialog({
   open,
@@ -38,10 +42,11 @@ export default function DonationUpsellDialog({
   presetsKopeks,
   maxTipKopeks,
   onDecide,
+  onCancel,
 }: DonationUpsellDialogProps) {
   const { t } = useTranslation();
   const haptic = useHaptic();
-  const { formatWithCurrency } = useCurrency();
+  const { formatWithCurrency, convertToRub, currencySymbol } = useCurrency();
   const [customOpen, setCustomOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
   const [customError, setCustomError] = useState<string | null>(null);
@@ -54,7 +59,11 @@ export default function DonationUpsellDialog({
   };
 
   const submitCustom = () => {
-    const parsed = Math.round(parseFloat(customValue.replace(',', '.')) * 100);
+    // Пользователь вводит сумму в СВОЕЙ валюте — весь диалог показан в ней же
+    // (formatWithCurrency конвертирует рубли в валюту локали). Без обратной
+    // конвертации ввод «50000» в фарси-локали уходил бы как 50 000 ₽ вместо ~120 ₽.
+    const typed = parseFloat(customValue.replace(',', '.'));
+    const parsed = Number.isFinite(typed) ? Math.round(convertToRub(typed) * 100) : NaN;
     if (!Number.isFinite(parsed) || parsed <= 0 || parsed > maxTipKopeks) {
       setCustomError(t('donationUpsell.customInvalid', { max: rub(maxTipKopeks) }));
       return;
@@ -65,7 +74,17 @@ export default function DonationUpsellDialog({
   const availablePresets = presetsKopeks.filter((preset) => preset <= maxTipKopeks);
 
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && decide(0)}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        // Esc и клик вне окна = «передумал», а не «отказался»: ничего необратимого
+        // не делаем. Отказ фиксирует только явная кнопка «Не сейчас».
+        if (!next) {
+          haptic.impact('light');
+          onCancel();
+        }
+      }}
+    >
       <DialogContent className="max-w-md">
         <DialogHeader className="text-center sm:text-center">
           <div
@@ -110,7 +129,7 @@ export default function DonationUpsellDialog({
                 setCustomValue(event.target.value);
                 setCustomError(null);
               }}
-              placeholder={t('donationUpsell.customPlaceholder')}
+              placeholder={t('donationUpsell.customPlaceholder', { currency: currencySymbol })}
               className="w-full rounded-xl border border-dark-700/40 bg-dark-800/40 px-4 py-3 text-base"
             />
             {customError && <div className="text-sm text-error-400">{customError}</div>}

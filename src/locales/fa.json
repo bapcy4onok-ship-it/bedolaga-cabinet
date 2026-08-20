@@ -4929,8 +4929,8 @@
     "accept": "حمایت — {{total}}",
     "otherAmount": "مبلغ دیگر",
     "decline": "الان نه",
-    "customPlaceholder": "مبلغ دلخواه، روبل",
+    "customPlaceholder": "مبلغ دلخواه، {{currency}}",
     "confirmCustom": "افزودن به پرداخت",
-    "customInvalid": "مبلغی بین ۱ روبل تا {{max}} وارد کنید"
+    "customInvalid": "مبلغی بیشتر از صفر و حداکثر {{max}} وارد کنید"
   }
 }

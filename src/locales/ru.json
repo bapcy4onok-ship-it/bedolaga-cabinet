@@ -911,9 +911,9 @@
     "accept": "Поддержать — {{total}}",
     "otherAmount": "Иная сумма",
     "decline": "Не сейчас",
-    "customPlaceholder": "Своя сумма, ₽",
+    "customPlaceholder": "Своя сумма, {{currency}}",
     "confirmCustom": "Добавить к платежу",
-    "customInvalid": "Введите сумму от 1 ₽ до {{max}}"
+    "customInvalid": "Введите сумму больше нуля и не больше {{max}}"
   },
   "referral": {
     "title": "Реферальная программа",
