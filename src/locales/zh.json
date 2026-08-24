@@ -675,6 +675,10 @@
     "currentBalance": "当前余额",
     "topUp": "充值",
     "topUpBalance": "充值余额",
+    "donate": "支持",
+    "donationFlowTitle": "捐赠",
+    "selectDonationMethod": "选择捐赠方式",
+    "donationNotice": "这是一笔捐赠，金额不会计入余额，而是用于项目的发展。",
     "enterAmount": "输入金额",
     "paymentMethod": "支付方式",
     "paymentMethods": {
@@ -725,6 +729,7 @@
     "withdrawal": "支出",
     "subscriptionPayment": "订阅付款",
     "referralReward": "推荐奖励",
+    "donation": "捐赠",
     "minAmount": "最小",
     "maxAmount": "最大",
     "notAvailable": "不可用",
@@ -811,6 +816,9 @@
       "topUpAmount": "充值金额",
       "success": "充值成功！",
       "successDesc": "您的余额已成功充值，资金现已可用。",
+      "donationAmount": "捐赠金额",
+      "donationSuccess": "感谢您的支持！",
+      "donationSuccessDesc": "我们已收到您的捐赠。感谢您助力项目成长！❤️",
       "failed": "付款失败",
       "failedDesc": "很遗憾，付款未完成。请重试或选择其他付款方式。",
       "timeout": "处理时间较长",
@@ -5123,6 +5131,13 @@
     "offer": "公开要约",
     "privacy": "隐私政策",
     "recurrent": "定期付款"
+  },
+  "supportProject": {
+    "button": "支持项目",
+    "title": "支持项目",
+    "badge": "捐赠",
+    "description": "所有款项都用于提升服务器容量和连接速度。",
+    "cta": "支持项目"
   },
   "donationUpsell": {
     "title": "支持项目？",

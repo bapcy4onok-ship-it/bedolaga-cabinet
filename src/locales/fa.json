@@ -675,6 +675,10 @@
     "currentBalance": "موجودی فعلی",
     "topUp": "شارژ",
     "topUpBalance": "شارژ موجودی",
+    "donate": "حمایت",
+    "donationFlowTitle": "کمک مالی",
+    "selectDonationMethod": "روش کمک مالی را انتخاب کنید",
+    "donationNotice": "این یک کمک مالی است — مبلغ به موجودی اضافه نمی‌شود و صرف توسعهٔ پروژه می‌شود.",
     "enterAmount": "مقدار را وارد کنید",
     "paymentMethod": "روش پرداخت",
     "paymentMethods": {
@@ -725,6 +729,7 @@
     "withdrawal": "برداشت",
     "subscriptionPayment": "پرداخت اشتراک",
     "referralReward": "پاداش معرفی",
+    "donation": "کمک مالی",
     "minAmount": "حداقل",
     "maxAmount": "حداکثر",
     "notAvailable": "در دسترس نیست",
@@ -811,6 +816,9 @@
       "topUpAmount": "مبلغ شارژ",
       "success": "شارژ موفق!",
       "successDesc": "موجودی شما با موفقیت شارژ شد. وجوه اکنون در دسترس است.",
+      "donationAmount": "مبلغ کمک مالی",
+      "donationSuccess": "از حمایت شما سپاسگزاریم!",
+      "donationSuccessDesc": "کمک مالی شما دریافت شد. ممنون که از رشد پروژه حمایت می‌کنید! ❤️",
       "failed": "پرداخت ناموفق",
       "failedDesc": "متأسفانه پرداخت تکمیل نشد. لطفاً دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
       "timeout": "بیشتر از حد معمول طول کشید",
@@ -5124,6 +5132,13 @@
     "offer": "پیشنهاد عمومی",
     "privacy": "سیاست حفظ حریم خصوصی",
     "recurrent": "پرداخت‌های مکرر"
+  },
+  "supportProject": {
+    "button": "حمایت از پروژه",
+    "title": "حمایت از پروژه",
+    "badge": "کمک مالی",
+    "description": "تمام مبلغ صرف افزایش ظرفیت سرورها و سرعت اتصال می‌شود.",
+    "cta": "حمایت از پروژه"
   },
   "donationUpsell": {
     "title": "از پروژه حمایت می‌کنید؟",

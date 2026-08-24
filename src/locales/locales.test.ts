@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import en from './en.json';
+import fa from './fa.json';
 import ru from './ru.json';
+import zh from './zh.json';
 
 /**
  * Синхронность en/ru локалей. i18next настроен с fallbackLng: 'ru' — ключ,
@@ -88,4 +90,50 @@ describe('синхронность локалей en/ru', () => {
     }
     expect(mismatches).toEqual([]);
   });
+});
+
+/**
+ * Донат-флоу (supportProject.*, balance.*donation*, donationUpsell.*,
+ * admin.salesStats.donations.*) — пользовательский, а не админский слой, и
+ * fallbackLng: 'ru' показывает персу/китайцу русский текст ровно так же, как
+ * англичанину. Сторож выше двуязычный, поэтому дыру в fa/zh он не видел.
+ * Полный паритет всех ключей тут НЕ проверяем (fa/zh осознанно отстают на
+ * ru-only админ-словарях) — только донат-ключи, во всех четырёх локалях.
+ */
+const DONATION_KEY = /donat|supportProject|sponsor|donor/i;
+
+const donationBases = [...ruBases].filter(
+  (k) => DONATION_KEY.test(k) && !RU_ONLY_NAMESPACES.some((ns) => k.startsWith(ns)),
+);
+
+describe('донат-флоу переведён во всех локалях', () => {
+  it('набор донат-ключей в ru непустой (защита от вырожденного фильтра)', () => {
+    expect(donationBases.length).toBeGreaterThan(20);
+  });
+
+  for (const [lang, dict] of Object.entries({ en, fa, zh })) {
+    const langFlat = flatten(dict as Tree);
+    const langBases = baseKeys(langFlat);
+
+    it(`${lang}: каждый донат-ключ из ru переведён`, () => {
+      const missing = donationBases.filter((k) => !langBases.has(k));
+      expect(missing).toEqual([]);
+    });
+
+    it(`${lang}: плейсхолдеры {{...}} в донат-ключах совпадают с ru`, () => {
+      const PH = /\{\{[^}]+\}\}/g;
+      const mismatches: string[] = [];
+      for (const [key, ruValue] of ruFlat) {
+        if (!DONATION_KEY.test(key)) continue;
+        const langValue = langFlat.get(key);
+        if (langValue === undefined) continue;
+        const ruPh = (ruValue.match(PH) ?? []).sort().join(',');
+        const langPh = (langValue.match(PH) ?? []).sort().join(',');
+        if (ruPh !== langPh) {
+          mismatches.push(`${key}: ru=[${ruPh}] ${lang}=[${langPh}]`);
+        }
+      }
+      expect(mismatches).toEqual([]);
+    });
+  }
 });
