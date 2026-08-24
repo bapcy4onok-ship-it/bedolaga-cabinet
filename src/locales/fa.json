@@ -1265,17 +1265,28 @@
         "revenue": "درآمد"
       },
       "donations": {
-        "totalAmount": "مجموع کمک‌ها",
+        "totalAmount": "جمع‌آوری‌شده در دوره",
+        "donationsCount": "تعداد کمک‌ها",
+        "donationsCountWithValue": "تعداد کمک‌ها: {{count}}",
         "donorsCount": "حامیان",
+        "avgDonation": "میانگین هر کمک",
         "avgPerDonor": "میانگین هر حامی",
         "topSponsors": "برترین حامیان",
         "anonymous": "ناشناس",
+        "bySource": "کمک‌ها بر اساس منبع",
         "fromMenu": "از منوی «حمایت»",
         "fromUpsell": "افزودنی هنگام پرداخت",
+        "otherSource": "منبع دیگر ({{source}})",
+        "upsellNote": "افزودنی‌های هنگام شارژ حساب از قبل در آمار شارژ لحاظ شده‌اند: پرداخت واقعی برابر «شارژ + افزودنی» بوده است، پس نباید بار دوم به درآمد اضافه شوند. کمک‌های منوی «حمایت از پروژه» اصلاً جزو درآمد نیستند و دفتر جداگانه‌ای دارند.",
+        "dailyChart": "کمک‌های روزانه",
+        "dailyBySource": "کمک‌های روزانه بر اساس منبع",
+        "amount": "مبلغ",
         "funnelTitle": "قیف پیشنهاد پرداخت",
         "funnelShown": "نمایش",
         "funnelAccepted": "پذیرفته",
-        "funnelApplied": "پرداخت‌شده"
+        "funnelApplied": "پرداخت‌شده",
+        "funnelDeclined": "رد شده",
+        "funnelConversion": "نرخ تبدیل (پرداخت‌شده / نمایش)"
       },
       "payments": {
         "successRate": "نرخ موفقیت پرداخت",

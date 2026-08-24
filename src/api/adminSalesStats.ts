@@ -194,14 +194,33 @@ export interface DonorItem {
   last_donation_at: string | null;
 }
 
+export interface DailyDonationItem {
+  date: string;
+  count: number;
+  amount_kopeks: number;
+}
+
+export interface DailyDonationBySourceItem {
+  date: string;
+  source: string;
+  amount_kopeks: number;
+}
+
+// Поля с `?` бэкенд отдаёт с дефолтами и появились позже остальных: выложенная
+// версия постарше их не вернёт вовсе, поэтому читаются через `?? 0` / `?? []`.
 export interface DonationsStats {
   total_amount_kopeks: number;
+  donations_count?: number;
   donors_count: number;
+  avg_donation_kopeks?: number;
   top_donors: DonorItem[];
   // Суммы по источнику: 'menu' — кнопка «Поддержать проект», 'topup_upsell' —
   // надбавка к пополнению. Надбавки уже учтены и внутри статистики пополнений:
   // реальный платёж был на сумму «пополнение + надбавка».
   by_source?: Record<string, number>;
+  by_source_count?: Record<string, number>;
+  daily?: DailyDonationItem[];
+  daily_by_source?: DailyDonationBySourceItem[];
   // Воронка апселла: shown / accepted / applied / declined.
   upsell_funnel?: Record<string, number>;
 }

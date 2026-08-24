@@ -1265,17 +1265,28 @@
         "revenue": "收入"
       },
       "donations": {
-        "totalAmount": "捐赠总额",
+        "totalAmount": "本期筹集",
+        "donationsCount": "捐赠笔数",
+        "donationsCountWithValue": "捐赠笔数：{{count}}",
         "donorsCount": "捐赠人数",
+        "avgDonation": "平均单笔捐赠",
         "avgPerDonor": "人均捐赠",
         "topSponsors": "顶级赞助者",
         "anonymous": "匿名",
+        "bySource": "按来源的捐赠",
         "fromMenu": "来自“支持”菜单",
         "fromUpsell": "结账时追加",
+        "otherSource": "其他来源（{{source}}）",
+        "upsellNote": "充值时的追加金额已计入充值统计：实际支付金额为“充值+追加”，因此不能再次计入收入。而“支持项目”菜单中的捐赠完全不计入收入，它们单独记账。",
+        "dailyChart": "每日捐赠",
+        "dailyBySource": "每日按来源捐赠",
+        "amount": "金额",
         "funnelTitle": "结账提议漏斗",
         "funnelShown": "展示",
         "funnelAccepted": "接受",
-        "funnelApplied": "已支付"
+        "funnelApplied": "已支付",
+        "funnelDeclined": "拒绝",
+        "funnelConversion": "转化率（已支付 / 展示）"
       },
       "payments": {
         "successRate": "支付成功率",

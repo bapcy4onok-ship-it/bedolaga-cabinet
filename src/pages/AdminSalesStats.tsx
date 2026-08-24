@@ -6,7 +6,8 @@ import type { SalesStatsParams } from '../api/adminSalesStats';
 import { salesStatsApi } from '../api/adminSalesStats';
 import { SALES_STATS } from '../constants/salesStats';
 import { useCurrency } from '../hooks/useCurrency';
-import { getMonthToDateRange } from '../utils/period';
+import type { PeriodDelta } from '../utils/period';
+import { computeDelta, getMonthToDateRange, getPreviousPeriodParams } from '../utils/period';
 import { AdminBackButton } from '../components/admin/AdminBackButton';
 import {
   BanknotesIcon,
@@ -32,40 +33,6 @@ import {
 } from '../components/sales-stats';
 
 type TabId = 'trials' | 'sales' | 'renewals' | 'addons' | 'deposits' | 'donations' | 'payment';
-
-type Delta = { percent: number; trend: 'up' | 'down' | 'stable' };
-
-/** Same-length window immediately before the selected one, for period-over-period
- * deltas. Returns null for "all time" — nothing meaningful to compare against. */
-function getPreviousPeriodParams(period: {
-  days?: number;
-  startDate?: string;
-  endDate?: string;
-}): SalesStatsParams | null {
-  if (period.startDate && period.endDate) {
-    const start = new Date(period.startDate).getTime();
-    const length = new Date(period.endDate).getTime() - start;
-    return {
-      start_date: new Date(start - length).toISOString(),
-      end_date: new Date(start).toISOString(),
-    };
-  }
-  if (period.days !== undefined && period.days > 0) {
-    const dayMs = 86_400_000;
-    const now = Date.now();
-    return {
-      start_date: new Date(now - 2 * period.days * dayMs).toISOString(),
-      end_date: new Date(now - period.days * dayMs).toISOString(),
-    };
-  }
-  return null;
-}
-
-function computeDelta(current: number, previous: number): Delta | null {
-  if (previous === 0) return current === 0 ? null : { percent: 100, trend: 'up' };
-  const percent = Math.round(((current - previous) / previous) * 1000) / 10;
-  return { percent, trend: percent > 0 ? 'up' : percent < 0 ? 'down' : 'stable' };
-}
 
 export default function AdminSalesStats() {
   const { t } = useTranslation();
@@ -110,8 +77,11 @@ export default function AdminSalesStats() {
     placeholderData: keepPreviousData,
   });
 
+  // prevParams === null ("all time"): the query is disabled, but keepPreviousData
+  // still hands back the previous key's data — without this guard the deltas would
+  // be measured against whatever period was selected before.
   const deltas = useMemo(() => {
-    if (!summary || !prevSummary) return null;
+    if (!summary || !prevSummary || !prevParams) return null;
     return {
       revenue: computeDelta(summary.total_revenue_kopeks, prevSummary.total_revenue_kopeks),
       newTrials: computeDelta(summary.new_trials, prevSummary.new_trials),
@@ -120,13 +90,13 @@ export default function AdminSalesStats() {
       addonRevenue: computeDelta(summary.addon_revenue_kopeks, prevSummary.addon_revenue_kopeks),
       manualTopup: computeDelta(summary.manual_topup_kopeks, prevSummary.manual_topup_kopeks),
     };
-  }, [summary, prevSummary]);
+  }, [summary, prevSummary, prevParams]);
 
   // Active-subscriptions trend = net change over the period (new paid − expired),
   // shown relative to the count at the start of the period. The active count
   // itself is a "right now" snapshot, so a plain period-over-period delta would
   // always be zero — this shows real growth/shrinkage instead.
-  const activeDelta = useMemo<Delta | null>(() => {
+  const activeDelta = useMemo<PeriodDelta | null>(() => {
     if (!summary) return null;
     const net = summary.new_paid_subscriptions - summary.expired_subscriptions;
     if (net === 0) return null;

@@ -15,10 +15,17 @@ import { SALES_STATS } from '../../constants/salesStats';
 import { useChartColors } from '../../hooks/useChartColors';
 
 interface StackedBarChartProps {
+  /** `key` is the series identifier — pass a stable slug, not a translated label:
+   * it becomes the recharts dataKey (dots and brackets in it would break lookup)
+   * and it drives the alphabetical series order that hands out fallback colors. */
   data: { date: string; key: string; value: number }[];
   title: string;
   valueFormatter?: (value: number) => string;
   height?: number;
+  /** Human-readable series names for legend and tooltip, by series key. */
+  keyLabels?: Record<string, string>;
+  /** Pins a series to one color regardless of its position, by series key. */
+  colorByKey?: Record<string, string>;
 }
 
 /**
@@ -32,6 +39,8 @@ export function StackedBarChart({
   title,
   valueFormatter,
   height = SALES_STATS.CHART.HEIGHT,
+  keyLabels,
+  colorByKey,
 }: StackedBarChartProps) {
   const { t, i18n } = useTranslation();
   const colors = useChartColors();
@@ -122,9 +131,11 @@ export function StackedBarChart({
             <Bar
               key={key}
               dataKey={key}
-              name={key}
+              name={keyLabels?.[key] ?? key}
               stackId="a"
-              fill={SALES_STATS.BAR_COLORS[index % SALES_STATS.BAR_COLORS.length]}
+              fill={
+                colorByKey?.[key] ?? SALES_STATS.BAR_COLORS[index % SALES_STATS.BAR_COLORS.length]
+              }
               radius={index === seriesKeys.length - 1 ? [4, 4, 0, 0] : undefined}
             />
           ))}

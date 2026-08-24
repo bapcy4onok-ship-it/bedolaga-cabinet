@@ -1418,17 +1418,28 @@
         "revenue": "Revenue"
       },
       "donations": {
-        "totalAmount": "Total donated",
+        "totalAmount": "Collected in period",
+        "donationsCount": "Donations",
+        "donationsCountWithValue": "Donations: {{count}}",
         "donorsCount": "Donors",
+        "avgDonation": "Avg donation",
         "avgPerDonor": "Avg per donor",
         "topSponsors": "Top sponsors",
         "anonymous": "Anonymous",
+        "bySource": "Donations by source",
         "fromMenu": "From «Support» menu",
         "fromUpsell": "Add-on at checkout",
+        "otherSource": "Other source ({{source}})",
+        "upsellNote": "Top-up add-ons are already included in the deposits stats: the real payment was «deposit + add-on», so they must not be added to revenue a second time. Donations from the «Support the project» menu are not part of revenue at all — they are a separate ledger.",
+        "dailyChart": "Daily donations",
+        "dailyBySource": "Daily donations by source",
+        "amount": "Amount",
         "funnelTitle": "Checkout offer funnel",
         "funnelShown": "Shown",
         "funnelAccepted": "Accepted",
-        "funnelApplied": "Paid"
+        "funnelApplied": "Paid",
+        "funnelDeclined": "Declined",
+        "funnelConversion": "Conversion (paid / shown)"
       },
       "payments": {
         "successRate": "Payment success rate",
