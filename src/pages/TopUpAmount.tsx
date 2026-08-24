@@ -176,6 +176,9 @@ export default function TopUpAmount() {
       const rt = searchParams.get('returnTo');
       if (amount) params.set('amount', amount);
       if (rt) params.set('returnTo', rt);
+      // Без переноса purpose пожертвование по ссылке на отключённый метод молча
+      // превратилось бы в обычное пополнение с зачислением на баланс.
+      if (searchParams.get('purpose') === 'donation') params.set('purpose', 'donation');
       const qs = params.toString();
       navigate(`/balance/top-up${qs ? `?${qs}` : ''}`, { replace: true });
     }
