@@ -11,6 +11,9 @@ export interface MediaItem {
   caption?: string | null;
   /** Signed, expiring download token from the ticket response. */
   token?: string | null;
+  /** Optional lighter preview for grid tiles; the fullscreen viewer keeps the full file. */
+  thumb_file_id?: string | null;
+  thumb_token?: string | null;
 }
 
 interface MessageLike {
@@ -46,9 +49,17 @@ function getItems(message: MessageLike): MediaItem[] {
 export function MessageMediaGrid({
   message,
   translateError = 'Failed to load image',
+  layout = 'grid',
 }: {
   message: MessageLike;
   translateError?: string;
+  /**
+   * 'grid' (default, tickets): square tiles that fill the width, up to 4 + «+N».
+   * 'strip' (opt-in, reward-task reviews): one row of fixed-height portrait tiles
+   * (phone-screenshot ratio 9:19.5, object-contain, every photo, scrolls sideways),
+   * so a report stays a few hundred px tall on any screen.
+   */
+  layout?: 'grid' | 'strip';
 }) {
   const items = getItems(message);
   const photoItems = items.filter((i) => i.type === 'photo');
@@ -101,9 +112,36 @@ export function MessageMediaGrid({
   const visiblePhotos = photoItems.slice(0, 4);
   const hiddenCount = photoItems.length - visiblePhotos.length;
 
+  const previewUrl = (item: MediaItem) =>
+    item.thumb_file_id && item.thumb_token
+      ? ticketsApi.getMediaUrl(item.thumb_file_id, item.thumb_token)
+      : ticketsApi.getMediaUrl(item.file_id, item.token);
+
   return (
     <div className="mt-3 space-y-2">
-      {photoItems.length > 0 && (
+      {layout === 'strip' && photoItems.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {/* 96×208 / 103×224 = 9:19.5, the shape of a phone screenshot: the
+              ~370×800 preview fits whole, nothing is cropped or upscaled */}
+          {photoItems.map((item, idx) => (
+            <button
+              key={`${item.file_id}-${idx}`}
+              type="button"
+              className="group relative h-52 w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-lg border border-dark-700/50 bg-dark-900/60 sm:h-56 sm:w-[103px]"
+              onClick={() => openFullscreen(idx)}
+            >
+              <img
+                src={previewUrl(item)}
+                alt={item.caption || 'Attached photo'}
+                className="h-full w-full object-contain transition-opacity group-hover:opacity-90"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {layout === 'grid' && photoItems.length > 0 && (
         <div className={`grid gap-1 ${gridClass}`}>
           {visiblePhotos.map((item, visIdx) => {
             // visIdx is always the correct index into photoItems (visible prefix)
@@ -117,7 +155,7 @@ export function MessageMediaGrid({
                 onClick={() => openFullscreen(originalIdx)}
               >
                 <img
-                  src={ticketsApi.getMediaUrl(item.file_id, item.token)}
+                  src={previewUrl(item)}
                   alt={item.caption || 'Attached photo'}
                   className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
                   loading="lazy"

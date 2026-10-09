@@ -137,3 +137,42 @@ describe('донат-флоу переведён во всех локалях', 
     });
   }
 });
+
+/**
+ * «Задания»: тексты отказов, сверенные с ботом (R4c). Админ видит, что user_blocked —
+ * это и удалённый пользователь; пользователь в en видит ту же концовку, что и в боте
+ * («If you think this is a mistake, contact support.»), в ru — «Если это ошибка —
+ * напишите в поддержку.». Обычный сторож выше проверяет только ключи и плейсхолдеры,
+ * возврат старой формулировки он не видит.
+ */
+describe('«Задания»: тексты отказов совпадают с ботом', () => {
+  it('админка: user_blocked — заблокирован или удалён', () => {
+    expect(ruFlat.get('admin.rewardTasks.errors.user_blocked')).toBe(
+      'Пользователь заблокирован или удалён — дни не начислены, отчёт можно отклонить',
+    );
+    expect(enFlat.get('admin.rewardTasks.errors.user_blocked')).toBe(
+      'The user is blocked or deleted — no days were added, you can reject the report',
+    );
+  });
+
+  const ENDS_WITH_SUPPORT = [
+    'rewardTasks.errors.restricted',
+    'rewardTasks.errors.subscription_disabled',
+    'rewardTasks.errors.user_blocked',
+    'rewardTasks.ineligible.restricted.text',
+    'rewardTasks.ineligible.subscription_disabled.text',
+    'rewardTasks.ineligible.unknown.text',
+  ];
+
+  it.each(ENDS_WITH_SUPPORT)('%s: концовка про поддержку как в боте (en, ru)', (key) => {
+    expect(enFlat.get(key)).toMatch(/\. If you think this is a mistake, contact support\.$/);
+    expect(ruFlat.get(key)).toMatch(/\. Если это ошибка — напишите в поддержку\.$/);
+  });
+
+  it('в en-текстах «Заданий» не осталось старой концовки', () => {
+    const stale = [...enFlat].filter(
+      ([key, value]) => key.includes('rewardTasks.') && /If this is a mistake/i.test(value),
+    );
+    expect(stale).toEqual([]);
+  });
+});

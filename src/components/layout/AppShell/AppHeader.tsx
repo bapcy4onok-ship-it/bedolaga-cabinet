@@ -42,6 +42,7 @@ import {
   SunIcon,
   MoonIcon,
   SearchIcon,
+  CalendarStarIcon,
 } from './icons';
 
 const FALLBACK_NAME = import.meta.env.VITE_APP_NAME || 'Cabinet';
@@ -63,6 +64,7 @@ interface AppHeaderProps {
   hasContests?: boolean;
   hasPolls?: boolean;
   giftEnabled?: boolean;
+  hasRewardTasks?: boolean;
 }
 
 export function AppHeader({
@@ -79,6 +81,7 @@ export function AppHeader({
   hasContests,
   hasPolls,
   giftEnabled,
+  hasRewardTasks,
 }: AppHeaderProps) {
   const { t } = useTranslation();
   const location = useLocation();
@@ -164,6 +167,7 @@ export function AppHeader({
     { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
     { path: '/balance', label: t('nav.balance'), icon: WalletIcon },
     ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
+    ...(hasRewardTasks ? [{ path: '/tasks', label: t('nav.tasks'), icon: CalendarStarIcon }] : []),
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
     ...(hasContests ? [{ path: '/contests', label: t('nav.contests'), icon: GamepadIcon }] : []),
     ...(hasPolls ? [{ path: '/polls', label: t('nav.polls'), icon: ClipboardIcon }] : []),

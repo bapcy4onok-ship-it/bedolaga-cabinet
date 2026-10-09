@@ -62,6 +62,7 @@ const Contests = lazyWithRetry(() => import('./pages/Contests'));
 const Polls = lazyWithRetry(() => import('./pages/Polls'));
 const Info = lazyWithRetry(() => import('./pages/Info'));
 const Wheel = lazyWithRetry(() => import('./pages/Wheel'));
+const RewardTasks = lazyWithRetry(() => import('./pages/RewardTasks'));
 const GiftSubscription = lazyWithRetry(() => import('./pages/GiftSubscription'));
 const GiftResult = lazyWithRetry(() => import('./pages/GiftResult'));
 const Connection = lazyWithRetry(() => import('./pages/Connection'));
@@ -85,6 +86,7 @@ const AdminTicketSettings = lazyWithRetry(() => import('./pages/AdminTicketSetti
 const AdminSettings = lazyWithRetry(() => import('./pages/AdminSettings'));
 const AdminApps = lazyWithRetry(() => import('./pages/AdminApps'));
 const AdminWheel = lazyWithRetry(() => import('./pages/AdminWheel'));
+const AdminRewardTasks = lazyWithRetry(() => import('./pages/AdminRewardTasks'));
 const AdminTariffs = lazyWithRetry(() => import('./pages/AdminTariffs'));
 const AdminTariffCreate = lazyWithRetry(() => import('./pages/AdminTariffCreate'));
 const AdminServers = lazyWithRetry(() => import('./pages/AdminServers'));
@@ -561,6 +563,16 @@ function App() {
           }
         />
         <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <RewardTasks />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/gift"
           element={
             <ProtectedRoute>
@@ -691,6 +703,16 @@ function App() {
             <PermissionRoute permission="wheel:read">
               <LazyPage>
                 <AdminWheel />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/tasks"
+          element={
+            <PermissionRoute permission="tasks:read">
+              <LazyPage>
+                <AdminRewardTasks />
               </LazyPage>
             </PermissionRoute>
           }

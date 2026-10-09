@@ -35,6 +35,7 @@ const PRESETS: Record<string, string[]> = {
     'sales_stats:read',
     'pinned_messages:*',
     'wheel:*',
+    'tasks:*',
   ],
   support: ['tickets:read', 'tickets:reply', 'users:read'],
 };

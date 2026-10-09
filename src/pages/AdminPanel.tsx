@@ -24,6 +24,7 @@ import {
   NewsIcon,
   PartnerIcon,
   PercentIcon,
+  PhotoIcon,
   PinIcon,
   RemnawaveIcon,
   SearchIcon,
@@ -73,6 +74,7 @@ const icons = {
   send: <SendIcon />,
   pin: <PinIcon />,
   'circle-dot': <WheelIcon />,
+  photo: <PhotoIcon />,
   handshake: <PartnerIcon />,
   'arrow-up': <ArrowUpIcon />,
   network: <ShareIcon />,
@@ -251,6 +253,12 @@ const sections: AdminSection[] = [
         permission: 'pinned_messages:read',
       },
       { name: 'admin.nav.wheel', icon: 'circle-dot', to: '/admin/wheel', permission: 'wheel:read' },
+      {
+        name: 'admin.nav.rewardTasks',
+        icon: 'photo',
+        to: '/admin/tasks',
+        permission: 'tasks:read',
+      },
       {
         name: 'admin.nav.partners',
         icon: 'handshake',

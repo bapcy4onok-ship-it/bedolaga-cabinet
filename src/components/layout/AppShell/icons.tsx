@@ -22,4 +22,5 @@ export {
   ArrowRightIcon,
   DownloadIcon,
   PaletteIcon,
+  CalendarStarIcon,
 } from '../../icons';

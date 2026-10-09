@@ -51,6 +51,7 @@
     "polls": "Polls",
     "info": "Info",
     "wheel": "Fortune Wheel",
+    "tasks": "Tasks",
     "menu": "Menu",
     "gift": "Gift",
     "navigation": "Navigation"
@@ -1340,6 +1341,7 @@
       "settings": "Settings",
       "apps": "Apps",
       "wheel": "Wheel",
+      "rewardTasks": "Tasks & photo reports",
       "tariffs": "Tariffs",
       "servers": "Squads",
       "banSystem": "Ban Monitoring",
@@ -2133,6 +2135,144 @@
         "empty": "No spins yet"
       }
     },
+    "rewardTasks": {
+      "title": "Tasks & photo reports",
+      "subtitle": "Tasks for free subscription days and report review",
+      "loadError": "Failed to load data",
+      "stats": {
+        "pending": "Under review",
+        "activeTasks": "Active tasks",
+        "approved": "Completed total"
+      },
+      "tabs": {
+        "review": "Under review",
+        "tasks": "Tasks",
+        "history": "History"
+      },
+      "kind": {
+        "photo_report": "Photo report",
+        "channel_boost": "Channel boost"
+      },
+      "source": {
+        "bot": "Bot",
+        "cabinet": "Cabinet",
+        "auto": "Auto check"
+      },
+      "status": {
+        "pending": "Under review",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "filter": {
+        "task": "Task",
+        "allTasks": "All tasks",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "review": {
+        "empty": "No reports to review",
+        "selectAll": "Select all",
+        "deselectAll": "Clear selection",
+        "select": "Select report #{{id}}",
+        "deselect": "Deselect report #{{id}}",
+        "clearSelection": "Clear selection",
+        "approveSelected": "Approve selected ({{value}})",
+        "approveShort": "Approve ({{value}})",
+        "reject": "Reject",
+        "approveConfirm_one": "Approve {{count}} report? The subscription days are added right away.",
+        "approveConfirm_other": "Approve {{count}} reports? The subscription days are added right away.",
+        "rejectTitle_one": "Reject {{count}} report",
+        "rejectTitle_other": "Reject {{count}} reports",
+        "rejectReason": "Reason (shown to the user)",
+        "rejectPlaceholder": "E.g.: the likes are not visible on the screenshots",
+        "reasonTooLong": "The reason must be at most {{max}} characters",
+        "approvedToast": "Approved: {{value}}",
+        "rejectedToast": "Rejected: {{value}}",
+        "failedToast": "Failed: {{value}} — see the errors on the cards",
+        "approving": "Approving… {{done}}/{{total}}",
+        "rejecting": "Rejecting… {{done}}/{{total}}",
+        "stoppedTitle": "Processed {{done}} of {{total}} — stopped",
+        "noResponse": "The server did not respond in time",
+        "boosts": "Boosts: {{value}}",
+        "openUser": "Profile"
+      },
+      "userStatus": {
+        "blocked": "Blocked",
+        "deleted": "Deleted"
+      },
+      "history": {
+        "empty": "Nothing here yet",
+        "reviewer": "Reviewed by {{name}}",
+        "reason": "Reason: {{reason}}"
+      },
+      "tasks": {
+        "create": "Create task",
+        "empty": "No tasks yet",
+        "active": "Active",
+        "inactive": "Disabled",
+        "minBoosts": "Boosts: {{value}}",
+        "maxPhotos_one": "Up to {{count}} screenshot",
+        "maxPhotos_other": "Up to {{count}} screenshots",
+        "pendingCount": "Under review: {{value}}",
+        "approvedCount": "Completed: {{value}}",
+        "sortOrder": "Order: {{value}}",
+        "channel": "Channel: {{value}}",
+        "edit": "Edit",
+        "enable": "Enable",
+        "disable": "Disable",
+        "delete": "Delete",
+        "deleteConfirm": "Delete the task \"{{title}}\"?",
+        "deleteHasSubmissions": "This task already has reports and can't be deleted. Disable it instead",
+        "deleted": "Task deleted",
+        "saved": "Task saved"
+      },
+      "form": {
+        "createTitle": "New task",
+        "editTitle": "Edit task",
+        "dialogHint": "Users get subscription days for completing the task",
+        "kind": "Task type",
+        "kindHint": {
+          "photo_report": "The user sends screenshots, an admin reviews them manually",
+          "channel_boost": "The bot checks the channel boost via Telegram and grants the days instantly"
+        },
+        "kindLocked": "The task type can't be changed after creation",
+        "title": "Title",
+        "titlePlaceholder": "E.g.: Like all posts in the channel",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "What the user has to do to get the reward",
+        "rewardDays": "Reward, days",
+        "minBoosts": "Boosts required",
+        "maxPhotos": "Max screenshots",
+        "channelId": "Channel ID",
+        "channelIdHint": "E.g. -1001234567890. The bot must be a channel admin, otherwise Telegram won't return boosts",
+        "actionUrl": "Button link",
+        "actionUrlHint": "Optional. The task button: a channel, a post or a boost link",
+        "sortOrder": "Order",
+        "isActive": "Task is active",
+        "errors": {
+          "title": "Enter a title (up to 200 characters)",
+          "rewardDays": "A whole number from 1 to 365",
+          "actionUrl": "The link must start with https:// (up to 500 characters)",
+          "channelId": "Enter a channel ID like -100… or @username",
+          "minBoosts": "A whole number from 1 to 100",
+          "maxPhotos": "A whole number from 1 to 10",
+          "sortOrder": "A whole number"
+        }
+      },
+      "errors": {
+        "already_completed": "The user has already been rewarded for this task",
+        "not_pending": "The report has already been processed",
+        "not_found": "Report not found",
+        "task_not_found": "The task was deleted — the report can't be processed",
+        "no_subscription": "The user has no subscription to add the days to",
+        "subscription_disabled": "The user's subscription is disabled — no days were added",
+        "restricted": "Subscription renewal is restricted for this user — no days were added",
+        "user_blocked": "The user is blocked or deleted — no days were added, you can reject the report",
+        "panel_sync_failed": "Couldn't sync the subscription with the panel, please try again later",
+        "internal_error": "Internal server error, please try again",
+        "unknown": "Error: {{code}}"
+      }
+    },
     "broadcasts": {
       "title": "Broadcasts",
       "subtitle": "Mass sending of messages to users",
@@ -2461,6 +2601,7 @@
         "iface_additional": "Additional",
         "users_support": "Support",
         "users_referral": "Referral",
+        "users_reward_tasks": "Tasks",
         "users_channel": "Channel",
         "users_localization": "Localization",
         "users_moderation": "Moderation",
@@ -4138,6 +4279,7 @@
           "channels": "Channels",
           "ban_system": "Ban system",
           "wheel": "Lucky wheel",
+          "tasks": "Tasks",
           "apps": "Apps",
           "email_templates": "Email templates",
           "pinned_messages": "Pinned messages",
@@ -5223,6 +5365,105 @@
     "enterAnswer": "Enter your answer",
     "submit": "Submit",
     "imHere": "I'm here!"
+  },
+  "rewardTasks": {
+    "title": "Tasks",
+    "subtitle": "Complete tasks and get free subscription days",
+    "loadError": "Failed to load tasks",
+    "empty": "No tasks available right now. Check back later!",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "banner": {
+      "title": "Tasks for subscription days",
+      "description": "Complete simple tasks and get free subscription days"
+    },
+    "ineligible": {
+      "no_subscription": {
+        "title": "A subscription is required",
+        "text": "Activate the free trial or get a subscription first, then come back to the tasks",
+        "hint": "The task becomes available once you have a subscription"
+      },
+      "restricted": {
+        "title": "Tasks are unavailable",
+        "text": "Subscription renewal is restricted for your account. If you think this is a mistake, contact support.",
+        "hint": "Unavailable: subscription renewal is restricted"
+      },
+      "subscription_disabled": {
+        "title": "Your subscription is disabled",
+        "text": "Your subscription is currently disabled. Tasks will become available once it is active again. If you think this is a mistake, contact support.",
+        "hint": "The task becomes available once your subscription is active again"
+      },
+      "unknown": {
+        "title": "Tasks are unavailable",
+        "text": "Tasks are currently unavailable for your account. If you think this is a mistake, contact support.",
+        "hint": "The task is unavailable right now"
+      },
+      "trial": "Activate free trial",
+      "buy": "Get a subscription",
+      "support": "Contact support"
+    },
+    "kind": {
+      "photo_report": "Photo report",
+      "channel_boost": "Channel boost"
+    },
+    "status": {
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "pending": "Under review",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    },
+    "completedAt": "Reward granted on {{date}}",
+    "completedInfo": "Reward granted",
+    "pendingInfo": "Your report has been sent and is waiting for review",
+    "rejectedInfo": "Report rejected: {{reason}}",
+    "rejectedNoReason": "Report rejected",
+    "retryHint": "You can try again",
+    "openLink": "Open link",
+    "linkTelegram": "Link Telegram",
+    "boost": {
+      "open": "Boost the channel",
+      "check": "Check boost",
+      "checking": "Checking…",
+      "wait": "Retry in {{seconds}} s",
+      "hint": "Only Telegram Premium users can boost channels. Boosts required: {{required}}",
+      "success": "Boost counted! +{{days}} added to your subscription"
+    },
+    "photo": {
+      "start": "Send report",
+      "resubmit": "Send a new report",
+      "hint": "Attach screenshots proving the task is done (up to {{max}})",
+      "add": "Add screenshot",
+      "counter": "Screenshots: {{current}} of {{max}}",
+      "comment": "Comment (optional)",
+      "commentPlaceholder": "E.g. your nickname in the channel or a note",
+      "submit": "Send for review",
+      "remove": "Remove screenshot",
+      "uploadFailed": "Failed",
+      "removeFailed": "Remove the screenshots that failed to upload and add them again",
+      "badType": "\"{{name}}\": only JPG, PNG, WebP and GIF are supported",
+      "tooLarge": "\"{{name}}\": the file is larger than 10 MB",
+      "limit": "Screenshot limit for this task: {{max}}",
+      "submitted": "Report sent for review"
+    },
+    "errors": {
+      "no_subscription": "Activate the free trial or get a subscription first, then come back to the tasks",
+      "restricted": "Subscription renewal is restricted for your account. If you think this is a mistake, contact support.",
+      "subscription_disabled": "Your subscription is currently disabled. Tasks will become available once it is active again. If you think this is a mistake, contact support.",
+      "user_blocked": "Your account is blocked. If you think this is a mistake, contact support.",
+      "telegram_required": "Link your Telegram account to check the boost",
+      "not_enough_boosts": "Boosts found: {{found}} of {{required}}. Boost the channel and check again",
+      "no_boosts": "No boost found. Boost the channel and check again",
+      "boost_check_failed": "Couldn't check the boost. Please try again a bit later",
+      "already_completed": "This task is already completed",
+      "already_pending": "A report for this task is already under review",
+      "task_not_found": "This task is no longer available",
+      "task_inactive": "This task is no longer available",
+      "invalid_media": "Check your screenshots: their number must not exceed the task limit",
+      "panel_sync_failed": "Couldn't add the days. Please try again later or contact support",
+      "rate_limited": "Too many attempts. Please wait a minute",
+      "generic": "Something went wrong. Please try again"
+    }
   },
   "polls": {
     "title": "Polls",

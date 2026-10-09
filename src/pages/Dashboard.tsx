@@ -22,6 +22,7 @@ import PendingGiftCard from '../components/dashboard/PendingGiftCard';
 import SubscriptionListCard from '../components/subscription/SubscriptionListCard';
 import { API } from '../config/constants';
 import { ChevronRightIcon, StarIcon } from '@/components/icons';
+import { useFeatureFlags } from '../hooks/useFeatureFlags';
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -33,6 +34,8 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const blockingType = useBlockingStore((state) => state.blockingType);
   const [trialError, setTrialError] = useState<string | null>(null);
+  // Same flag as the "Tasks" menu item (shared query, no extra request)
+  const { hasRewardTasks } = useFeatureFlags();
 
   // Refresh user data on mount
   useEffect(() => {
@@ -398,6 +401,24 @@ export default function Dashboard() {
         earningsRubles={referralInfo?.available_balance_rubles || 0}
         refLoading={refLoading}
       />
+
+      {/* Reward Tasks Banner */}
+      {hasRewardTasks && (
+        <Link to="/tasks" className="bento-card-hover group flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-3xl">🎁</span>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold text-dark-100">
+                {t('rewardTasks.banner.title')}
+              </h3>
+              <p className="text-sm text-dark-400">{t('rewardTasks.banner.description')}</p>
+            </div>
+          </div>
+          <div className="flex-shrink-0 text-dark-500 transition-all duration-300 group-hover:translate-x-1 group-hover:text-accent-400">
+            <ChevronRightIcon />
+          </div>
+        </Link>
+      )}
 
       {/* Fortune Wheel Banner */}
       {wheelConfig?.is_enabled && (

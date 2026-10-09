@@ -49,6 +49,7 @@ import {
   lavaUiState,
   type LavaUiState,
 } from '../utils/lavaRecurring';
+import { dailyChargeCountdown, formatDailyCountdown } from '../utils/dailyCountdown';
 import Twemoji from 'react-twemoji';
 import { DeviceTopupSheet } from '../components/subscription/sheets/DeviceTopupSheet';
 import { DeviceReductionSheet } from '../components/subscription/sheets/DeviceReductionSheet';
@@ -1621,18 +1622,9 @@ export default function Subscription() {
           ) : (
             subscription.next_daily_charge_at &&
             (() => {
-              const now = new Date();
-              const nextChargeStr = subscription.next_daily_charge_at.endsWith('Z')
-                ? subscription.next_daily_charge_at
-                : subscription.next_daily_charge_at + 'Z';
-              const nextCharge = new Date(nextChargeStr);
-              const totalMs = 24 * 60 * 60 * 1000;
-              const remainingMs = Math.max(0, nextCharge.getTime() - now.getTime());
-              const elapsedMs = totalMs - remainingMs;
-              const progress = Math.min(100, (elapsedMs / totalMs) * 100);
-
-              const hours = Math.floor(remainingMs / (1000 * 60 * 60));
-              const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+              // A reward task can move the charge days ahead: days in the label, the
+              // 24 h bar empty until the last day (utils/dailyCountdown)
+              const countdown = dailyChargeCountdown(subscription.next_daily_charge_at, Date.now());
 
               return (
                 <div className="mt-4">
@@ -1641,9 +1633,11 @@ export default function Subscription() {
                       {t('subscription.pause.nextCharge')}
                     </span>
                     <span className="font-mono text-[12px] font-semibold text-dark-50">
-                      {hours > 0
-                        ? `${hours}${t('subscription.pause.hours')} ${minutes}${t('subscription.pause.minutes')}`
-                        : `${minutes}${t('subscription.pause.minutes')}`}
+                      {formatDailyCountdown(countdown, {
+                        days: t('subscription.pause.days'),
+                        hours: t('subscription.pause.hours'),
+                        minutes: t('subscription.pause.minutes'),
+                      })}
                     </span>
                   </div>
                   <div
@@ -1653,7 +1647,7 @@ export default function Subscription() {
                     <div
                       className="absolute inset-0 origin-left rounded-full transition-transform duration-500"
                       style={{
-                        transform: `scaleX(${progress / 100})`,
+                        transform: `scaleX(${countdown.progress / 100})`,
                         background:
                           'linear-gradient(90deg, rgb(var(--color-accent-500)), rgb(var(--color-accent-400)))',
                       }}

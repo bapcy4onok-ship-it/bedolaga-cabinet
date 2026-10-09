@@ -9,8 +9,12 @@ export interface PromptOptions {
   placeholder?: string;
   submitLabel?: string;
   cancelLabel?: string;
-  /** Input type, e.g. 'text' (default) or 'url'. */
+  /** Input type, e.g. 'text' (default) or 'url'. Ignored when `multiline` is set. */
   inputType?: string;
+  /** Multi-line text (a textarea): Enter inserts a line break, Ctrl/Cmd+Enter submits. */
+  multiline?: boolean;
+  /** 'danger' styles the submit button as a destructive action (e.g. a rejection). */
+  tone?: 'danger';
 }
 
 interface PromptRequest extends PromptOptions {

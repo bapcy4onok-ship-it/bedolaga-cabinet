@@ -13,6 +13,8 @@ interface MediaUploadResponse {
   file_id: string;
   file_unique_id: string | null;
   media_url: string;
+  // Photo preview (~320px) for list thumbnails; absent on older backends.
+  thumbnail_file_id?: string | null;
 }
 
 // Media parameters for ticket messages
