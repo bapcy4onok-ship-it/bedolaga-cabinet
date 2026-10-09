@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   init,
   restoreInitData,
+  retrieveLaunchParams,
   retrieveRawInitData,
   mountMiniApp,
   miniAppReady,
@@ -20,6 +21,7 @@ import {
   isFullscreen,
 } from '@telegram-apps/sdk-react';
 import { clearStaleSessionIfNeeded } from './utils/token';
+import { bootstrapApp } from './bootstrap';
 import { installEncodingSurrogateGuard } from './utils/installEncodingSurrogateGuard';
 import { useAuthStore } from './store/auth';
 import { AppWithNavigator } from './AppWithNavigator';
@@ -46,100 +48,88 @@ if (typeof (Object as { hasOwn?: unknown }).hasOwn !== 'function') {
     Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-// Only initialize Telegram SDK when running inside Telegram
-const isTelegramEnv =
-  !!(window as unknown as Record<string, unknown>).TelegramWebviewProxy ||
-  location.hash.includes('tgWebApp') ||
-  location.search.includes('tgWebApp');
-
-const HMR_KEY = '__tg_sdk_initialized';
-const alreadyInitialized = (window as unknown as Record<string, unknown>)[HMR_KEY] === true;
-
-if (isTelegramEnv && !alreadyInitialized) {
-  (window as unknown as Record<string, unknown>)[HMR_KEY] = true;
-
+// Each mount in its own try/catch so one failure doesn't block others.
+// mountMiniApp() internally mounts themeParams in SDK v3,
+// so we don't call mountThemeParams() separately to avoid ConcurrentCallError.
+function mountTelegramUi(): void {
   try {
-    init();
-    restoreInitData();
-
-    clearStaleSessionIfNeeded(retrieveRawInitData() || null);
-
-    // Adopt the user's Telegram client language on first run (no explicit choice yet).
-    applyTelegramLanguage();
-
-    // Each mount in its own try/catch so one failure doesn't block others.
-    // mountMiniApp() internally mounts themeParams in SDK v3,
-    // so we don't call mountThemeParams() separately to avoid ConcurrentCallError.
-    try {
-      mountMiniApp();
-    } catch {}
-    try {
-      bindThemeParamsCssVars();
-    } catch {}
-    try {
-      mountSwipeBehavior();
-      disableVerticalSwipes();
-    } catch {}
-    try {
-      mountClosingBehavior();
-      disableClosingConfirmation();
-    } catch {}
-    try {
-      mountBackButton();
-    } catch {}
-    // Viewport must be mounted before requesting fullscreen
-    mountViewport()
-      .then(() => {
-        bindViewportCssVars();
-        expandViewport();
-
-        // Auto-enter fullscreen if enabled in settings (mobile only)
-        if (getCachedFullscreenEnabled() && isTelegramMobile()) {
-          if (!isFullscreen()) {
-            requestFullscreen();
-          }
-        }
-      })
-      .catch(() => {});
-
-    miniAppReady();
+    mountMiniApp();
   } catch {}
-} else if (!isTelegramEnv) {
-  // Outside Telegram — still clear stale session tokens if any
-  clearStaleSessionIfNeeded(null);
+  try {
+    bindThemeParamsCssVars();
+  } catch {}
+  try {
+    mountSwipeBehavior();
+    disableVerticalSwipes();
+  } catch {}
+  try {
+    mountClosingBehavior();
+    disableClosingConfirmation();
+  } catch {}
+  try {
+    mountBackButton();
+  } catch {}
+  // Viewport must be mounted before requesting fullscreen
+  mountViewport()
+    .then(() => {
+      bindViewportCssVars();
+      expandViewport();
+
+      // Auto-enter fullscreen if enabled in settings (mobile only)
+      if (getCachedFullscreenEnabled() && isTelegramMobile()) {
+        if (!isFullscreen()) {
+          requestFullscreen();
+        }
+      }
+    })
+    .catch(() => {});
+
+  miniAppReady();
 }
 
-// Bootstrap auth after the Telegram SDK is initialised so CloudStorage-backed
-// refresh-token recovery can run inside initialize() (launch params + CloudStorage
-// are only available post-init()).
-void useAuthStore.getState().initialize();
+function startBackgroundTasks(): void {
+  // In parallel with auth bootstrap, eagerly check backend liveness so a dead
+  // backend paints the ServiceUnavailableScreen immediately instead of flashing
+  // the /login page first.
+  void checkBackendOnStartup();
 
-// In parallel with auth bootstrap, eagerly check backend liveness so a dead
-// backend paints the ServiceUnavailableScreen immediately instead of flashing
-// the /login page first.
-void checkBackendOnStartup();
-
-if ('requestIdleCallback' in window) {
-  requestIdleCallback(() => initLogoPreload());
-} else {
-  setTimeout(initLogoPreload, 100);
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => initLogoPreload());
+  } else {
+    setTimeout(initLogoPreload, 100);
+  }
 }
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
+function renderApp(): void {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
     },
-  },
-});
+  });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <ErrorBoundary level="app">
-      <QueryClientProvider client={queryClient}>
-        <AppWithNavigator />
-      </QueryClientProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <ErrorBoundary level="app">
+        <QueryClientProvider client={queryClient}>
+          <AppWithNavigator />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+}
+
+// Telegram SDK and the startapp param first, then the auth bootstrap, then the first
+// render. The order is what keeps a startapp deep link from looping or getting lost,
+// so it lives in bootstrap.ts, under test.
+bootstrapApp({
+  sdk: { init, restoreInitData, retrieveLaunchParams, retrieveRawInitData },
+  clearStaleSessionIfNeeded,
+  applyTelegramLanguage,
+  mountTelegramUi,
+  initializeAuth: () => useAuthStore.getState().initialize(),
+  startBackgroundTasks,
+  render: renderApp,
+});

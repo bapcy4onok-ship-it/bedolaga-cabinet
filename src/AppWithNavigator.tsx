@@ -5,7 +5,6 @@ import {
   hideBackButton,
   onBackButtonClick,
   offBackButtonClick,
-  retrieveLaunchParams,
 } from '@telegram-apps/sdk-react';
 import { useQuery } from '@tanstack/react-query';
 import Twemoji from 'react-twemoji';
@@ -18,7 +17,9 @@ import { ToastProvider } from './components/Toast';
 import { TooltipProvider } from './components/primitives/Tooltip';
 import { isInTelegramWebApp, closeTelegramApp } from './hooks/useTelegramSDK';
 import { getFallbackParentPath } from './utils/navigation';
+import { isBackButtonQueryEnabled } from './utils/telegramBackButton';
 import { subscriptionApi } from './api/subscription';
+import { useAuthStore } from './store/auth';
 import { useBlockingStore } from './store/blocking';
 
 const TWEMOJI_OPTIONS = { className: 'twemoji', folder: 'svg', ext: '.svg' } as const;
@@ -72,12 +73,15 @@ function TelegramBackButton() {
   // Share the subscriptions-list query with the page-level components.
   // React Query dedupes by key so this does not cause an extra fetch when
   // Subscriptions/Subscription/Dashboard pages mount.
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data: subData } = useQuery({
     queryKey: ['subscriptions-list'],
     queryFn: () => subscriptionApi.getSubscriptions(),
     staleTime: 30_000,
-    // Don't fetch outside Telegram — the cabinet still loads on the web.
-    enabled: isInTelegramWebApp(),
+    // Inside Telegram and after login only: before login its 401 hard-reloads the
+    // Mini App to /login (see isBackButtonQueryEnabled). Until the data arrives the
+    // defaults below stay fail-closed.
+    enabled: isBackButtonQueryEnabled({ isTelegram: isInTelegramWebApp(), isAuthenticated }),
   });
   const isMultiTariff = subData?.multi_tariff_enabled ?? false;
   const subsCount = subData?.subscriptions?.length ?? 0;
@@ -173,63 +177,13 @@ function TelegramBackButton() {
   return null;
 }
 
-/** Supported startapp params → in-app destinations. */
-const START_PARAM_ROUTES: Array<{ re: RegExp; to: (match: RegExpExecArray) => string }> = [
-  // Admin ticket notification buttons in group chats (bot issue #2988).
-  { re: /^admin_ticket_(\d+)$/, to: (match) => `/admin/tickets/${match[1]}` },
-  // «Продлить» links for expired subscriptions in the bot's rich main menu.
-  { re: /^renew_(\d+)$/, to: (match) => `/subscriptions/${match[1]}/renew` },
-  { re: /^subscriptions$/, to: () => '/subscriptions' },
-  // Paid-trial «Активировать триал» link in the bot's rich main menu — the
-  // dashboard renders TrialOfferCard with the pay-and-activate flow.
-  { re: /^trial$/, to: () => '/' },
-];
-
-/**
- * Routes a Telegram Mini App start param to an in-app destination on launch.
- *
- * Text links and buttons outside private-chat web_app buttons can only enter the
- * Mini App via `t.me/<bot>/<app>?startapp=<param>` deep links: admin ticket
- * notifications in GROUP/channel chats (bot issue #2988) and the bot's rich
- * main-menu «Продлить» links for expired subscriptions. Telegram delivers the
- * param as `tgWebAppStartParam`; we map it to a route once on mount. Access is
- * still gated by each route's own guards (e.g. `PermissionRoute`).
- */
-function StartParamNavigator() {
-  const navigate = useNavigate();
-  const handled = useRef(false);
-
-  useEffect(() => {
-    if (handled.current) return;
-    handled.current = true;
-
-    let startParam: string | undefined;
-    try {
-      startParam = retrieveLaunchParams().tgWebAppStartParam;
-    } catch {
-      return;
-    }
-    if (!startParam) return;
-
-    for (const { re, to } of START_PARAM_ROUTES) {
-      const match = re.exec(startParam);
-      if (match) {
-        navigate(to(match), { replace: true });
-        return;
-      }
-    }
-  }, [navigate]);
-
-  return null;
-}
-
 export function AppWithNavigator() {
   const isTelegram = isInTelegramWebApp();
 
   return (
     <BrowserRouter>
+      {/* startapp deep links become the initial URL before the first render (bootstrap.ts) */}
       {isTelegram && <TelegramBackButton />}
-      {isTelegram && <StartParamNavigator />}
       <ErrorBoundary level="page">
         <PlatformProvider>
           <ThemeColorsProvider>
