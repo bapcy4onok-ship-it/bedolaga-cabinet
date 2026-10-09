@@ -71,9 +71,9 @@ export default function TelegramRedirect() {
       const initData = getTelegramInitData();
 
       if (!isInTelegramWebApp() || !initData) {
-        // Not in Telegram, show message and redirect to login
+        // Not in Telegram, show message and redirect to login (keeping ?redirect= target)
         setStatus('not-telegram');
-        schedule(() => navigate('/login'), 2000);
+        schedule(() => navigate('/login', { replace: true, state: { from: redirectTo } }), 2000);
         return;
       }
 
@@ -178,7 +178,10 @@ export default function TelegramRedirect() {
               <button onClick={handleRetry} className="btn-primary w-full">
                 {t('auth.tryAgain')}
               </button>
-              <button onClick={() => navigate('/login')} className="btn-secondary w-full">
+              <button
+                onClick={() => navigate('/login', { replace: true, state: { from: redirectTo } })}
+                className="btn-secondary w-full"
+              >
                 {t('telegramRedirect.loginAlternative')}
               </button>
             </div>

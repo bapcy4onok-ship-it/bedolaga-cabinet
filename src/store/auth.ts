@@ -126,6 +126,9 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
+      // Login actions call this BEFORE setting isAuthenticated, as initialize() does:
+      // otherwise route guards see an authenticated non-admin for the length of
+      // this request and bounce an /admin/* return URL to '/'.
       checkAdminStatus: async () => {
         try {
           const token = tokenStorage.getAccessToken();
@@ -278,6 +281,7 @@ export const useAuthStore = create<AuthState>()(
         consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -285,7 +289,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       loginWithTelegramWidget: async (data, acceptedLegalDocuments) => {
@@ -300,6 +303,7 @@ export const useAuthStore = create<AuthState>()(
         consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -307,7 +311,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       loginWithTelegramOIDC: async (idToken, acceptedLegalDocuments) => {
@@ -322,6 +325,7 @@ export const useAuthStore = create<AuthState>()(
         consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -329,7 +333,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       loginWithEmail: async (email, password) => {
@@ -339,6 +342,7 @@ export const useAuthStore = create<AuthState>()(
         consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -346,7 +350,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       loginWithOAuth: async (provider, code, state, deviceId) => {
@@ -363,6 +366,7 @@ export const useAuthStore = create<AuthState>()(
         consumeCampaignSlug();
         consumeReferralCode();
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -370,7 +374,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       loginWithDeepLink: async (token, campaignSlug) => {
@@ -379,6 +382,7 @@ export const useAuthStore = create<AuthState>()(
           throw new Error('Invalid auth response: missing tokens');
         }
         tokenStorage.setTokens(response.access_token, response.refresh_token);
+        await get().checkAdminStatus();
         set({
           accessToken: response.access_token,
           refreshToken: response.refresh_token,
@@ -386,7 +390,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           pendingCampaignBonus: response.campaign_bonus || null,
         });
-        await get().checkAdminStatus();
       },
 
       registerWithEmail: async (

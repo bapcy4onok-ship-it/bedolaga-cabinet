@@ -7,6 +7,7 @@ import {
 import { isInTelegramWebApp } from '../hooks/useTelegramSDK';
 import { API } from '../config/constants';
 import { reportPossibleBackendDown } from '../api/health';
+import { saveReturnUrl } from './returnUrl';
 
 const TOKEN_KEYS = {
   ACCESS: 'access_token',
@@ -306,26 +307,6 @@ class TokenRefreshManager {
 }
 
 export const tokenRefreshManager = new TokenRefreshManager();
-
-const RETURN_URL_KEY = 'auth_return_url';
-
-export function saveReturnUrl(): void {
-  if (typeof window !== 'undefined') {
-    const currentPath = window.location.pathname + window.location.search;
-    if (currentPath && currentPath !== '/login') {
-      sessionStorage.setItem(RETURN_URL_KEY, currentPath);
-    }
-  }
-}
-
-export function getAndClearReturnUrl(): string | null {
-  if (typeof window !== 'undefined') {
-    const url = sessionStorage.getItem(RETURN_URL_KEY);
-    sessionStorage.removeItem(RETURN_URL_KEY);
-    return url;
-  }
-  return null;
-}
 
 export function safeRedirectToLogin(): void {
   if (typeof window !== 'undefined') {

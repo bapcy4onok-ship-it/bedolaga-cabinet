@@ -23,6 +23,7 @@ const RESOURCE_TYPES = [
   'tickets',
   'stats',
   'sales_stats',
+  'profit',
   'broadcasts',
   'tariffs',
   'promocodes',

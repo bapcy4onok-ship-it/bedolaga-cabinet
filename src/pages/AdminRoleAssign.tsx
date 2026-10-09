@@ -7,6 +7,7 @@ import { adminUsersApi, type UserListItem } from '@/api/adminUsers';
 import { PermissionGate } from '@/components/auth/PermissionGate';
 import { usePermissionStore } from '@/store/permissions';
 import { usePlatform } from '@/platform/hooks/usePlatform';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import {
   BackIcon,
   SearchIcon,
@@ -192,6 +193,10 @@ export default function AdminRoleAssign() {
 
   // Revoke confirm
   const [revokeConfirm, setRevokeConfirm] = useState<number | null>(null);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+  const revokeDialogRef = useFocusTrap<HTMLDivElement>(revokeConfirm !== null, {
+    onEscape: () => setRevokeConfirm(null),
+  });
 
   // Queries
   const { data: roles, isLoading: rolesLoading } = useQuery({
@@ -271,10 +276,12 @@ export default function AdminRoleAssign() {
       queryClient.invalidateQueries({ queryKey: ['admin-role-assignments'] });
       queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
       setRevokeConfirm(null);
+      setRevokeError(null);
     },
     onError: () => {
-      setRevokeConfirm(null);
-      setFormError(t('admin.roleAssign.errors.revokeFailed'));
+      // Диалог остаётся открытым: ошибка видна там же, где нажали «Отозвать»,
+      // а не в форме назначения выше, которая на мобильном уже за экраном.
+      setRevokeError(t('admin.roleAssign.errors.revokeFailed'));
     },
   });
 
@@ -579,7 +586,10 @@ export default function AdminRoleAssign() {
                       ) : (
                         <PermissionGate permission="roles:assign">
                           <button
-                            onClick={() => setRevokeConfirm(assignment.id)}
+                            onClick={() => {
+                              setRevokeError(null);
+                              setRevokeConfirm(assignment.id);
+                            }}
                             disabled={!canRevoke}
                             className="rounded-lg p-1.5 text-dark-400 transition-colors hover:bg-error-500/20 hover:text-error-400 disabled:cursor-not-allowed disabled:opacity-40"
                             title={t('admin.roleAssign.revoke')}
@@ -635,31 +645,48 @@ export default function AdminRoleAssign() {
         )}
       </div>
 
-      {/* Revoke Confirmation */}
+      {/* Revoke Confirmation — модалка, а не блок в конце страницы: иначе на
+          длинном списке (и на мобильном, где строки идут карточками) клик по
+          крестику уводит подтверждение за экран и выглядит как «ничего не произошло». */}
       {revokeConfirm !== null && (
-        <div className="mt-4 overflow-hidden rounded-xl border border-error-500/30 bg-dark-800">
-          <div className="border-b border-error-500/20 bg-error-500/5 px-5 py-4">
-            <h3 className="text-sm font-semibold text-error-400">
-              {t('admin.roleAssign.confirm.title')}
-            </h3>
-            <p className="mt-1 text-sm text-dark-400">{t('admin.roleAssign.confirm.text')}</p>
-          </div>
-          <div className="flex items-center justify-end gap-3 px-5 py-3">
-            <button
-              onClick={() => setRevokeConfirm(null)}
-              className="rounded-lg px-4 py-2 text-sm text-dark-300 transition-colors hover:text-dark-100"
-            >
-              {t('admin.roleAssign.confirm.cancel')}
-            </button>
-            <button
-              onClick={() => revokeMutation.mutate(revokeConfirm)}
-              disabled={revokeMutation.isPending}
-              className="rounded-lg bg-error-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-error-600 disabled:opacity-50"
-            >
-              {revokeMutation.isPending
-                ? t('admin.roleAssign.confirm.revoking')
-                : t('admin.roleAssign.confirm.revoke')}
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-dark-950/60"
+            onClick={() => setRevokeConfirm(null)}
+            aria-hidden="true"
+          />
+          <div
+            ref={revokeDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="role-revoke-title"
+            tabIndex={-1}
+            className="relative w-full max-w-sm overflow-hidden rounded-xl border border-error-500/30 bg-dark-800"
+          >
+            <div className="border-b border-error-500/20 bg-error-500/5 px-5 py-4">
+              <h3 id="role-revoke-title" className="text-sm font-semibold text-error-400">
+                {t('admin.roleAssign.confirm.title')}
+              </h3>
+              <p className="mt-1 text-sm text-dark-400">{t('admin.roleAssign.confirm.text')}</p>
+            </div>
+            {revokeError && <p className="px-5 pt-3 text-sm text-error-400">{revokeError}</p>}
+            <div className="flex items-center justify-end gap-3 px-5 py-3">
+              <button
+                onClick={() => setRevokeConfirm(null)}
+                className="rounded-lg px-4 py-2 text-sm text-dark-300 transition-colors hover:text-dark-100"
+              >
+                {t('admin.roleAssign.confirm.cancel')}
+              </button>
+              <button
+                onClick={() => revokeMutation.mutate(revokeConfirm)}
+                disabled={revokeMutation.isPending}
+                className="rounded-lg bg-error-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-error-600 disabled:opacity-50"
+              >
+                {revokeMutation.isPending
+                  ? t('admin.roleAssign.confirm.revoking')
+                  : t('admin.roleAssign.confirm.revoke')}
+              </button>
+            </div>
           </div>
         </div>
       )}

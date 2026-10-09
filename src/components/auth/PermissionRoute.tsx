@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router';
 import { useAuthStore } from '../../store/auth';
 import { usePermissionStore } from '../../store/permissions';
-import { saveReturnUrl } from '../../utils/token';
+import { saveReturnUrl } from '../../utils/returnUrl';
 import PageLoader from '../common/PageLoader';
 import Layout from '../layout/Layout';
 
@@ -38,7 +38,7 @@ export function PermissionRoute({
 
   if (!isAuthenticated) {
     saveReturnUrl();
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
 
   if (!isAdmin) {

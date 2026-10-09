@@ -6,7 +6,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import { brandingApi, type TelegramWidgetConfig } from '../api/branding';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/auth';
-import { useNavigate } from 'react-router';
 import { getPendingCampaignSlug } from '../utils/campaign';
 import { copyToClipboard } from '../utils/clipboard';
 import { isEndpointMissingError } from '../utils/api-error';
@@ -18,9 +17,10 @@ interface TelegramLoginButtonProps {
 const SCRIPT_LOAD_TIMEOUT_MS = 2000;
 const DEEPLINK_POLL_INTERVAL_MS = 2500;
 
+// Only authenticates. Where to go next is up to the page: Login redirects to the
+// return URL once the store flips isAuthenticated.
 export default function TelegramLoginButton({ referralCode }: TelegramLoginButtonProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [oidcLoading, setOidcLoading] = useState(false);
   const [oidcError, setOidcError] = useState('');
@@ -87,7 +87,6 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       setOidcLoading(true);
       setOidcError('');
       await loginWithTelegramOIDC(data.id_token);
-      if (mountedRef.current) navigate('/');
     } catch (err: unknown) {
       if (!mountedRef.current) return;
       let message = t('common.error');
@@ -189,7 +188,6 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
           auth_date: user.auth_date as number,
           hash: user.hash as string,
         });
-        navigate('/');
       } catch {
         // Error handled by auth store
       }
@@ -229,7 +227,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
         container.removeChild(container.firstChild);
       }
     };
-  }, [isOIDC, botUsername, widgetConfig, loginWithTelegramWidget, navigate, handleScriptFailed]);
+  }, [isOIDC, botUsername, widgetConfig, loginWithTelegramWidget, handleScriptFailed]);
 
   // Deep link auth: request token and start polling with recursive setTimeout
   const startDeepLinkAuth = useCallback(async () => {
@@ -271,14 +269,13 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
         try {
           // Deep link auth is for existing bot users — only campaign_slug applies
           await loginWithDeepLink(token, capturedCampaign);
-          // Success — auth store is updated, navigate
+          // Success — auth store is updated, Login redirects
           if (expireTimeoutRef.current) {
             clearTimeout(expireTimeoutRef.current);
             expireTimeoutRef.current = null;
           }
           if (mountedRef.current) {
             setDeepLinkPolling(false);
-            navigate('/');
           }
         } catch (err: unknown) {
           if (!mountedRef.current) return;
@@ -334,7 +331,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       // 404 = the deep-link auth routes don't exist on this bot build (< v3.33.0)
       setDeepLinkError(t(isEndpointMissingError(err) ? 'auth.botOutdated' : 'common.error'));
     }
-  }, [botUsername, loginWithDeepLink, navigate, t]);
+  }, [botUsername, loginWithDeepLink, t]);
 
   // Auto-start deep link auth when script fails (with cancellation for Strict Mode)
   useEffect(() => {
@@ -376,7 +373,6 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
             }
             if (mountedRef.current) {
               setDeepLinkPolling(false);
-              navigate('/');
             }
           } catch (err: unknown) {
             if (!mountedRef.current) return;
@@ -419,7 +415,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
         pollTimeoutRef.current = null;
       }
     };
-  }, [deepLinkPolling, deepLinkToken, loginWithDeepLink, navigate, t]);
+  }, [deepLinkPolling, deepLinkToken, loginWithDeepLink, t]);
 
   if (!botUsername || botUsername === 'your_bot') {
     // 404 on the config route = the bot build predates the cabinet endpoints,

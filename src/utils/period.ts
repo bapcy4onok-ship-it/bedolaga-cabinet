@@ -39,6 +39,41 @@ export function getMonthToDateRange(): { startDate: string; endDate: string } {
   };
 }
 
+/**
+ * Календарный месяц как диапазон YYYY-MM-DD — чтобы можно было заполнять и
+ * смотреть отдельный месяц. Конец обрезается сегодняшним днём: за будущие дни
+ * дохода ещё нет, а расходы бы уже разнеслись — месяц выглядел бы убыточным.
+ */
+export function getMonthRange(year: number, month: number): { startDate: string; endDate: string } {
+  const first = new Date(year, month, 1);
+  // Нулевой день следующего месяца = последний день этого, с учётом високосных.
+  const last = new Date(year, month + 1, 0);
+  const today = new Date();
+  return {
+    startDate: toLocalISODate(first),
+    endDate: toLocalISODate(last > today ? today : last),
+  };
+}
+
+/**
+ * Год и месяц, если период — ровно этот календарный месяц; иначе null.
+ * Нужен, чтобы подсветить месяц в переключателе и знать, откуда шагать.
+ */
+export function matchedMonth(period: {
+  days?: number;
+  startDate?: string;
+  endDate?: string;
+}): { year: number; month: number } | null {
+  if (period.days !== undefined || !period.startDate || !period.endDate) return null;
+  const start = fromLocalISODate(period.startDate);
+  if (start.getDate() !== 1) return null;
+
+  const range = getMonthRange(start.getFullYear(), start.getMonth());
+  return range.startDate === period.startDate && range.endDate === period.endDate
+    ? { year: start.getFullYear(), month: start.getMonth() }
+    : null;
+}
+
 /** True when the period is exactly "from the 1st of the current month to today". */
 export function isMonthToDate(period: {
   days?: number;

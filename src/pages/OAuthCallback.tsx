@@ -10,6 +10,7 @@ import {
   clearOAuthState,
   getErrorDetail,
 } from '../utils/oauth';
+import { clearReturnUrl, resolveReturnUrl } from '../utils/returnUrl';
 import type { ServerCompleteResponse } from '../types';
 import { CheckIcon, ExclamationIcon } from '@/components/icons';
 
@@ -27,6 +28,8 @@ export default function OAuthCallback() {
   const loginWithOAuth = useAuthStore((state) => state.loginWithOAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const hasRun = useRef(false);
+  // Login page saved it before leaving for the provider; router state is gone by now
+  const [returnUrl] = useState(() => resolveReturnUrl());
 
   // Handle merge redirect via useEffect (not in render)
   useEffect(() => {
@@ -101,12 +104,14 @@ export default function OAuthCallback() {
       if (mode === 'login' && provider && state) {
         // Login flow
         if (isAuthenticated) {
-          navigate('/', { replace: true });
+          clearReturnUrl();
+          navigate(returnUrl, { replace: true });
           return;
         }
         try {
           await loginWithOAuth(provider, code, state, deviceId);
-          navigate('/', { replace: true });
+          clearReturnUrl();
+          navigate(returnUrl, { replace: true });
         } catch (err: unknown) {
           const detail = getErrorDetail(err);
           setError(detail || t('auth.oauthError', 'Authorization was denied or failed'));
@@ -128,7 +133,7 @@ export default function OAuthCallback() {
     };
 
     handle();
-  }, [searchParams, loginWithOAuth, navigate, isAuthenticated, t]);
+  }, [searchParams, loginWithOAuth, navigate, isAuthenticated, returnUrl, t]);
 
   // Server-complete result: show success with "Return to Telegram" link
   // (merge redirect is handled by the useEffect above)

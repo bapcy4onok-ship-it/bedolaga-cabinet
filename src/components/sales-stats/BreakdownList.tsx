@@ -9,6 +9,8 @@ export interface BreakdownItem {
   value: number;
   color?: string;
   icon?: ReactNode;
+  /** Small caption under the bar, e.g. what the value is made of. */
+  hint?: string;
 }
 
 interface BreakdownListProps {
@@ -70,6 +72,7 @@ export function BreakdownList({ title, items, valueFormatter }: BreakdownListPro
                     style={{ width: `${barWidth}%`, backgroundColor: color }}
                   />
                 </div>
+                {item.hint && <p className="mt-1 text-xs text-dark-500">{item.hint}</p>}
               </div>
             );
           })}

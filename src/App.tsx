@@ -33,7 +33,7 @@ import {
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BackgroundHost } from './components/backgrounds/BackgroundHost';
 import { PermissionRoute } from '@/components/auth/PermissionRoute';
-import { saveReturnUrl } from './utils/token';
+import { saveReturnUrl } from './utils/returnUrl';
 import { useAnalyticsCounters } from './hooks/useAnalyticsCounters';
 import { useSiteVerification } from './hooks/useSiteVerification';
 // Auth pages - load immediately (small)
@@ -134,6 +134,7 @@ const AdminRemnawaveSquadDetail = lazyWithRetry(() => import('./pages/AdminRemna
 const AdminEmailTemplates = lazyWithRetry(() => import('./pages/AdminEmailTemplates'));
 const AdminTrafficUsage = lazyWithRetry(() => import('./pages/AdminTrafficUsage'));
 const AdminBulkActions = lazyWithRetry(() => import('./pages/AdminBulkActions'));
+const AdminProfit = lazyWithRetry(() => import('./pages/AdminProfit'));
 const AdminSalesStats = lazyWithRetry(() => import('./pages/AdminSalesStats'));
 const AdminUpdates = lazyWithRetry(() => import('./pages/AdminUpdates'));
 const AdminUserDetail = lazyWithRetry(() => import('./pages/AdminUserDetail'));
@@ -180,7 +181,7 @@ function ProtectedRoute({
 
   if (!isAuthenticated) {
     saveReturnUrl();
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
 
   return withLayout ? <Layout>{children}</Layout> : <>{children}</>;
@@ -198,7 +199,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated) {
     saveReturnUrl();
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
 
   if (!isAdmin) {
@@ -1110,6 +1111,16 @@ function App() {
             <PermissionRoute permission="sales_stats:read">
               <LazyPage>
                 <AdminSalesStats />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/profit"
+          element={
+            <PermissionRoute permission="profit:read">
+              <LazyPage>
+                <AdminProfit />
               </LazyPage>
             </PermissionRoute>
           }

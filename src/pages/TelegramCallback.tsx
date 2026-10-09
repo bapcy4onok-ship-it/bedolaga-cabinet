@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth';
+import { clearReturnUrl, resolveReturnUrl } from '../utils/returnUrl';
 
 export default function TelegramCallback() {
   const { t } = useTranslation();
@@ -10,10 +11,15 @@ export default function TelegramCallback() {
   const [error, setError] = useState('');
   const loginWithTelegramWidget = useAuthStore((state) => state.loginWithTelegramWidget);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // The widget lands here via a full-page redirect, so the page the user came from
+  // survives only in sessionStorage. Resolved once: both the isAuthenticated branch
+  // and the login handler below navigate, and both must get the same target.
+  const [returnUrl] = useState(() => resolveReturnUrl());
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      clearReturnUrl();
+      navigate(returnUrl, { replace: true });
       return;
     }
 
@@ -52,7 +58,8 @@ export default function TelegramCallback() {
           auth_date: parsedAuthDate,
           hash: hash,
         });
-        navigate('/');
+        clearReturnUrl();
+        navigate(returnUrl, { replace: true });
       } catch (err: unknown) {
         const error = err as { response?: { data?: { detail?: string } } };
         setError(error.response?.data?.detail || t('common.error'));
@@ -60,7 +67,7 @@ export default function TelegramCallback() {
     };
 
     authenticate();
-  }, [searchParams, loginWithTelegramWidget, navigate, isAuthenticated, t]);
+  }, [searchParams, loginWithTelegramWidget, navigate, isAuthenticated, returnUrl, t]);
 
   if (error) {
     return (

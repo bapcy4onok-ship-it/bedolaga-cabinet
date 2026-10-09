@@ -17,10 +17,13 @@ services:
     restart: unless-stopped
     env_file:
       - .env # Загрузить переменные из .env файла
+    # Прод на 185.185.143.212: наружу порт не публикуем — трафик идёт через Caddy
+    # (`reverse_proxy http://cabinet_frontend:80`) по общей внешней сети
+    # remnawave-network. На хосте остаётся только localhost для проверок.
     ports:
-      # Маппинг: <хост-порт>:<контейнер-порт>
-      # Внутри контейнера nginx слушает на порту 80
-      - '${CABINET_PORT:-3020}:80'
+      - '127.0.0.1:${CABINET_PORT:-3020}:80'
+    networks:
+      - remnawave-network
     healthcheck:
       # 127.0.0.1 вместо localhost: localhost может резолвиться в [::1], и на
       # образах, где nginx слушает только IPv4, healthcheck ложно падает
@@ -29,3 +32,8 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+
+networks:
+  # Сеть поднимает Caddy (/opt/remnawave/caddy), здесь только подключаемся.
+  remnawave-network:
+    external: true

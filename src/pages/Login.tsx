@@ -15,7 +15,8 @@ import {
   type BrandingInfo,
   type EmailAuthEnabled,
 } from '../api/branding';
-import { getAndClearReturnUrl, tokenStorage } from '../utils/token';
+import { tokenStorage } from '../utils/token';
+import { clearReturnUrl, resolveReturnUrl, saveReturnUrl } from '../utils/returnUrl';
 import { getApiErrorMessage } from '../utils/api-error';
 import { isInTelegramWebApp, getTelegramInitData, useTelegramSDK } from '../hooks/useTelegramSDK';
 import { closeMiniApp } from '@telegram-apps/sdk-react';
@@ -141,21 +142,25 @@ export default function Login() {
   const safeTop = Math.max(safeAreaInset.top, contentSafeAreaInset.top);
   const safeBottom = Math.max(safeAreaInset.bottom, contentSafeAreaInset.bottom);
 
-  // Получаем URL для возврата после авторизации
+  // URL для возврата после авторизации: state от React Router, а без него sessionStorage
+  // (от гардов и safeRedirectToLogin), по умолчанию главная. Вычисляем один раз:
+  // вход завершают и эффект isAuthenticated, и обработчик входа, и оба должны
+  // получить один и тот же адрес, а не '/' во втором вызове.
+  const returnUrl = useMemo(
+    () => resolveReturnUrl((location.state as { from?: string } | null)?.from),
+    [location.state],
+  );
   const getReturnUrl = useCallback(() => {
-    // Сначала проверяем state от React Router
-    const stateFrom = (location.state as { from?: string })?.from;
-    if (stateFrom && stateFrom !== '/login') {
-      return stateFrom;
-    }
-    // Затем проверяем сохранённый URL в sessionStorage (от safeRedirectToLogin)
-    const savedUrl = getAndClearReturnUrl();
-    if (savedUrl && savedUrl !== '/login') {
-      return savedUrl;
-    }
-    // По умолчанию на главную
-    return '/';
-  }, [location.state]);
+    clearReturnUrl();
+    return returnUrl;
+  }, [returnUrl]);
+
+  // Полностраничные входы (OAuth-провайдер, редирект виджета) возвращаются без state
+  // роутера, поэтому цель дублируем в sessionStorage. Эффект объявлен раньше эффекта
+  // isAuthenticated, чтобы тот очищал уже записанное.
+  useEffect(() => {
+    saveReturnUrl(returnUrl);
+  }, [returnUrl]);
 
   // Fetch branding with unified cache
   const cachedBranding = useMemo(() => getCachedBranding(), []);
