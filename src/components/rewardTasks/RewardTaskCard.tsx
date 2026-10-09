@@ -21,9 +21,16 @@ interface RewardTaskCardProps {
   eligible: boolean;
   /** Почему нельзя (для подсказки на карточке); null, пока задания доступны. */
   ineligibleReason?: IneligibleNoticeReason | null;
+  /** К аккаунту не привязан Telegram: буст проверить нельзя, сразу просим привязать. */
+  needsTelegram?: boolean;
 }
 
-export function RewardTaskCard({ task, eligible, ineligibleReason = null }: RewardTaskCardProps) {
+export function RewardTaskCard({
+  task,
+  eligible,
+  ineligibleReason = null,
+  needsTelegram = false,
+}: RewardTaskCardProps) {
   const { t } = useTranslation();
   const [formOpen, setFormOpen] = useState(false);
 
@@ -88,7 +95,7 @@ export function RewardTaskCard({ task, eligible, ineligibleReason = null }: Rewa
         </div>
       )}
 
-      {canAttempt && isBoost && <BoostTaskActions task={task} />}
+      {canAttempt && isBoost && <BoostTaskActions task={task} needsTelegram={needsTelegram} />}
 
       {/* Неизвестный (будущий) тип задания не уводим в фотоотчёт — только описание */}
       {canAttempt && task.kind === 'photo_report' && (

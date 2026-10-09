@@ -24,7 +24,14 @@ import { useTaskErrorText } from './useTaskErrorText';
 const CHECK_COOLDOWN_SECONDS = 15;
 const RATE_LIMITED_COOLDOWN_SECONDS = 60;
 
-export function BoostTaskActions({ task }: { task: RewardTask }) {
+export function BoostTaskActions({
+  task,
+  needsTelegram = false,
+}: {
+  task: RewardTask;
+  /** Telegram не привязан: вместо проверки — просьба привязать (бот смотрит его бусты). */
+  needsTelegram?: boolean;
+}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -85,6 +92,32 @@ export function BoostTaskActions({ task }: { task: RewardTask }) {
       }
     },
   });
+
+  // Без привязанного Telegram проверять нечего: бот смотрит бусты Telegram-аккаунта.
+  // Говорим об этом сразу, а не после нажатия; забустить канал можно и заранее.
+  if (needsTelegram) {
+    return (
+      <div className="space-y-2">
+        <TaskLinkButton
+          url={task.action_url}
+          label={t('rewardTasks.boost.open')}
+          icon={<RocketIcon className="h-5 w-5" />}
+        />
+        <div className="space-y-2 rounded-xl border border-accent-500/30 bg-accent-500/10 p-3 text-sm text-dark-200">
+          <p>{t('rewardTasks.boost.telegramRequired')}</p>
+          <Link
+            to="/profile/accounts"
+            className="inline-block font-medium text-accent-400 underline"
+          >
+            {t('rewardTasks.linkTelegram')}
+          </Link>
+        </div>
+        <p className="text-xs text-dark-500">
+          {t('rewardTasks.boost.hint', { required: task.min_boosts })}
+        </p>
+      </div>
+    );
+  }
 
   // Кнопка проверки — 3 состояния, как на экране обязательной подписки на канал
   let checkIcon: ReactNode;

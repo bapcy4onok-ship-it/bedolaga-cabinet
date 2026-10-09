@@ -5427,7 +5427,8 @@
       "checking": "Checking…",
       "wait": "Retry in {{seconds}} s",
       "hint": "Only Telegram Premium users can boost channels. Boosts required: {{required}}",
-      "success": "Boost counted! +{{days}} added to your subscription"
+      "success": "Boost counted! +{{days}} added to your subscription",
+      "telegramRequired": "A linked Telegram account is required: the bot checks the boosts of your Telegram account. Link it and the check button will appear here."
     },
     "photo": {
       "start": "Send report",

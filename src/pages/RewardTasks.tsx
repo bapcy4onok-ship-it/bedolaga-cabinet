@@ -14,6 +14,7 @@ import {
   parseRewardTaskError,
   retryRewardTasksOverview,
   shouldLeaveTasksPage,
+  needsTelegramForBoost,
 } from '../utils/rewardTasks';
 
 // Одна колонка с ограниченной шириной и на десктопе: заданий единицы, порядок
@@ -130,6 +131,7 @@ export default function RewardTasks() {
               task={task}
               eligible={data.eligible}
               ineligibleReason={notice?.reason ?? null}
+              needsTelegram={needsTelegramForBoost(data)}
             />
           ))}
         </div>

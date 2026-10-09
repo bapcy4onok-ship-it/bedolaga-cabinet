@@ -42,6 +42,11 @@ export type RewardTaskIneligibleReason = 'no_subscription' | 'restricted' | 'sub
 export interface RewardTasksResponse {
   eligible: boolean;
   ineligible_reason: RewardTaskIneligibleReason | null;
+  /**
+   * Привязан ли к аккаунту Telegram: буст бот проверяет по нему. Нет у бэкенда
+   * старее этого поля — тогда считаем, что привязан (кнопка проверки как раньше).
+   */
+  telegram_linked?: boolean;
   tasks: RewardTask[];
 }
 

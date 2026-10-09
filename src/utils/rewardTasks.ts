@@ -305,6 +305,17 @@ export function canAttemptTask(task: Pick<RewardTask, 'status'>, eligible: boole
 }
 
 /**
+ * Нужно ли сначала привязать Telegram, чтобы проверить буст: бот смотрит бусты
+ * привязанного Telegram-аккаунта, а у зарегистрированных по почте его может не быть.
+ * Только явное `telegram_linked: false` — бэкенд без этого поля оставляет кнопку.
+ */
+export function needsTelegramForBoost(
+  response: Pick<RewardTasksResponse, 'telegram_linked'> | null | undefined,
+): boolean {
+  return response?.telegram_linked === false;
+}
+
+/**
  * Оптимистично меняет статус задания в кэше списка, пока не пришёл свежий
  * ответ: кнопка «Отправить отчёт» / «Проверить буст» пропадает сразу.
  */
