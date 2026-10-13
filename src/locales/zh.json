@@ -312,6 +312,13 @@
     "usedSuffix": "已用",
     "validUntil": "有效期至 {{date}}"
   },
+  "torrentWarning": {
+    "dialog": {
+      "title": "禁止使用 TORRENT！",
+      "description": "禁止通过我们的 VPN 下载种子——违者将被封禁访问。\n\nVPN 开启时，请关闭 uTorrent 等种子客户端——它们即使在后台也会继续下载和做种。",
+      "ok": "明白了"
+    }
+  },
   "subscription": {
     "title": "订阅",
     "currentPlan": "当前套餐",

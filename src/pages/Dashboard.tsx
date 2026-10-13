@@ -15,6 +15,7 @@ import NewsSection from '../components/news/NewsSection';
 import SubscriptionCardActive from '../components/dashboard/SubscriptionCardActive';
 import SubscriptionCardExpired from '../components/dashboard/SubscriptionCardExpired';
 import TrialOfferCard from '../components/dashboard/TrialOfferCard';
+import TorrentWarningDialog from '../components/dashboard/TorrentWarningDialog';
 import StatsGrid from '../components/dashboard/StatsGrid';
 import { giftApi } from '../api/gift';
 import { promoApi } from '../api/promo';
@@ -438,6 +439,9 @@ export default function Dashboard() {
 
       {/* News Section */}
       <NewsSection />
+
+      {/* Одноразовое окно про торренты — после онбординга, чтобы не перекрывать тур */}
+      <TorrentWarningDialog enabled={isOnboardingCompleted && !showOnboarding && !blockingType} />
 
       {/* Onboarding Tutorial */}
       {showOnboarding && (

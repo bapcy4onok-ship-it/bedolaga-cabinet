@@ -342,6 +342,13 @@
     "showAll": "Show all",
     "subscriptions": "Subscriptions"
   },
+  "torrentWarning": {
+    "dialog": {
+      "title": "Using TORRENT is prohibited!",
+      "description": "Torrenting through our VPN is prohibited — violators lose access.\n\nWhile the VPN is on, close uTorrent and other torrent clients — they keep downloading and seeding in the background.",
+      "ok": "Got it"
+    }
+  },
   "subscription": {
     "title": "Subscription",
     "currentPlan": "Current Plan",
