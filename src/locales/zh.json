@@ -968,8 +968,10 @@
         "amount": "金额",
         "amountPlaceholder": "输入金额（{{currency}}）",
         "amountHint": "最低：{{min}} {{currency}}",
-        "paymentDetails": "付款信息",
-        "paymentDetailsPlaceholder": "银行卡号、钱包地址或其他付款信息..."
+        "paymentDetails": "收款信息",
+        "paymentDetailsPlaceholder": "SBP 手机号及银行名称，或 USDT（TRC-20）地址",
+        "methodsWarningTitle": "建议使用 SBP 或 USDT（TRC-20）",
+        "methodsWarning": "转账到银行卡号会收取手续费。SBP 请填写手机号和银行名称，USDT 请填写 TRC-20 网络的钱包地址（以 T 开头）。"
       },
       "status": {
         "pending": "待处理",

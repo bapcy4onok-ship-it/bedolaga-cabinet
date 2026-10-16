@@ -93,6 +93,12 @@ export default function ReferralWithdrawalRequest() {
             >
               {balance?.requisites_text || t('referral.withdrawal.fields.paymentDetails')}
             </label>
+            <div className="mb-2 rounded-lg border border-warning-500/20 bg-warning-500/10 p-3 text-sm">
+              <p className="font-medium text-warning-400">
+                ⚠️ {t('referral.withdrawal.fields.methodsWarningTitle')}
+              </p>
+              <p className="mt-1 text-dark-300">{t('referral.withdrawal.fields.methodsWarning')}</p>
+            </div>
             <textarea
               id="rw-payment-details"
               className="input min-h-[80px] w-full"

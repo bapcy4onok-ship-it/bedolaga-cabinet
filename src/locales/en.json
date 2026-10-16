@@ -1112,8 +1112,10 @@
         "amount": "Amount",
         "amountPlaceholder": "Enter amount in {{currency}}",
         "amountHint": "Minimum: {{min}} {{currency}}",
-        "paymentDetails": "Payment Details",
-        "paymentDetailsPlaceholder": "Card number, wallet address, or other payment info..."
+        "paymentDetails": "Payout details",
+        "paymentDetailsPlaceholder": "SBP phone number with bank name, or USDT (TRC-20) address",
+        "methodsWarningTitle": "We recommend SBP or USDT (TRC-20)",
+        "methodsWarning": "Transfers to a card number incur a fee. For SBP, enter your phone number and bank; for USDT, enter a TRC-20 wallet address (starts with T)."
       },
       "status": {
         "pending": "Pending",

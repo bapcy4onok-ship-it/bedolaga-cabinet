@@ -1131,8 +1131,10 @@
         "amount": "Сумма",
         "amountPlaceholder": "Введите сумму в {{currency}}",
         "amountHint": "Минимум: {{min}} {{currency}}",
-        "paymentDetails": "Реквизиты для оплаты",
-        "paymentDetailsPlaceholder": "Номер карты, адрес кошелька или другие реквизиты..."
+        "paymentDetails": "Реквизиты для выплаты",
+        "paymentDetailsPlaceholder": "Номер телефона для СБП с названием банка или адрес USDT (TRC-20)",
+        "methodsWarningTitle": "Рекомендуем СБП или USDT (TRC-20)",
+        "methodsWarning": "При переводе на номер карты взимается комиссия. Для СБП укажите номер телефона и банк, для USDT — адрес кошелька в сети TRC-20 (начинается с T)."
       },
       "status": {
         "pending": "В обработке",

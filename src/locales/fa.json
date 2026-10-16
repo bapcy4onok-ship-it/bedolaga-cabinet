@@ -968,8 +968,10 @@
         "amount": "مبلغ",
         "amountPlaceholder": "مبلغ را به {{currency}} وارد کنید",
         "amountHint": "حداقل: {{min}} {{currency}}",
-        "paymentDetails": "اطلاعات پرداخت",
-        "paymentDetailsPlaceholder": "شماره کارت، آدرس کیف پول یا سایر اطلاعات پرداخت..."
+        "paymentDetails": "اطلاعات دریافت وجه",
+        "paymentDetailsPlaceholder": "شماره تلفن SBP همراه با نام بانک، یا آدرس USDT (TRC-20)",
+        "methodsWarningTitle": "SBP یا USDT (TRC-20) را توصیه می‌کنیم",
+        "methodsWarning": "برای واریز به شماره کارت کارمزد دریافت می‌شود. برای SBP شماره تلفن و نام بانک، و برای USDT آدرس کیف پول در شبکه TRC-20 (با T شروع می‌شود) را وارد کنید."
       },
       "status": {
         "pending": "در انتظار",
