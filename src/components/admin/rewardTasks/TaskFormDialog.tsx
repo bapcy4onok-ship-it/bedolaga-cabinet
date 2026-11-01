@@ -28,7 +28,7 @@ import {
   type RewardTaskFormState,
 } from '../../../utils/rewardTasks';
 
-const KINDS: RewardTaskKind[] = ['photo_report', 'channel_boost'];
+const KINDS: RewardTaskKind[] = ['photo_report', 'channel_boost', 'channel_subscription'];
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -59,7 +59,7 @@ export function TaskFormDialog({ open, task, onClose }: TaskFormDialogProps) {
 
   const errors = validateTaskForm(form);
   const isValid = Object.keys(errors).length === 0;
-  const isBoost = form.kind === 'channel_boost';
+  const isBoost = form.kind === 'channel_boost' || form.kind === 'channel_subscription';
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -73,7 +73,10 @@ export function TaskFormDialog({ open, task, onClose }: TaskFormDialogProps) {
       // Меню и список заданий у самого админа тоже зависят от набора активных заданий
       queryClient.invalidateQueries({ queryKey: ['reward-tasks-count'] });
       queryClient.invalidateQueries({ queryKey: ['reward-tasks'] });
-      showToast({ type: 'success', message: t('admin.rewardTasks.tasks.saved') });
+      showToast({
+        type: 'success',
+        message: t('admin.rewardTasks.tasks.saved'),
+      });
       onClose();
     },
     onError: (err: unknown) => setServerError(rewardTaskErrorMessage(err, t('common.error'))),
@@ -182,7 +185,7 @@ export function TaskFormDialog({ open, task, onClose }: TaskFormDialogProps) {
               />
               {fieldError('rewardDays')}
             </div>
-            {isBoost ? (
+            {form.kind === 'channel_subscription' ? null : isBoost ? (
               <div>
                 <label className="label" htmlFor="reward-task-boosts">
                   {t('admin.rewardTasks.form.minBoosts')}

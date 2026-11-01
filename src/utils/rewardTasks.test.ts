@@ -899,3 +899,20 @@ describe('скрытый раздел заданий', () => {
     expect(retryRewardTasksOverview(1, network)).toBe(false);
   });
 });
+
+describe('channel subscription task', () => {
+  it('grants one day by default and preserves the channel in the admin payload', () => {
+    const form = switchTaskKind(taskToForm(null), 'channel_subscription');
+    form.title = 'Подписка на канал';
+    form.channelId = '-1003822976183';
+    form.actionUrl = 'https://t.me/LEDOKOL_CHANNEL';
+    expect(form.rewardDays).toBe('1');
+    expect(validateTaskForm(form)).toEqual({});
+    expect(formToTaskPayload(form).channel_id).toBe('-1003822976183');
+  });
+
+  it('shows an actionable membership error', () => {
+    expect(describeUserTaskError({ status: 400, code: 'channel_not_subscribed', message: null, found: null, required: null }))
+      .toEqual({ key: 'rewardTasks.errors.channel_not_subscribed' });
+  });
+});

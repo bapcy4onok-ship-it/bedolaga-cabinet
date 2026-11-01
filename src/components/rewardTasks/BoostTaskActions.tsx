@@ -33,6 +33,7 @@ export function BoostTaskActions({
   needsTelegram?: boolean;
 }) {
   const { t } = useTranslation();
+  const isChannel = task.kind === 'channel_subscription';
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const errorText = useTaskErrorText();
@@ -47,7 +48,8 @@ export function BoostTaskActions({
   }, [cooldown]);
 
   const checkMutation = useMutation({
-    mutationFn: () => rewardTasksApi.checkBoost(task.id),
+    mutationFn: () =>
+      isChannel ? rewardTasksApi.checkChannel(task.id) : rewardTasksApi.checkBoost(task.id),
     onSuccess: (result) => {
       setCooldown(CHECK_COOLDOWN_SECONDS);
       // По контракту успех — всегда completed: true; иначе не обещаем дни зря
@@ -65,7 +67,9 @@ export function BoostTaskActions({
       showToast({
         type: 'success',
         message: t('rewardTasks.boost.success', {
-          days: t('rewardTasks.days', { count: result.reward_days || task.reward_days }),
+          days: t('rewardTasks.days', {
+            count: result.reward_days || task.reward_days,
+          }),
         }),
       });
       queryClient.setQueryData<RewardTasksResponse>(['reward-tasks'], (prev) =>
@@ -100,7 +104,7 @@ export function BoostTaskActions({
       <div className="space-y-2">
         <TaskLinkButton
           url={task.action_url}
-          label={t('rewardTasks.boost.open')}
+          label={t(isChannel ? 'rewardTasks.channel.open' : 'rewardTasks.boost.open')}
           icon={<RocketIcon className="h-5 w-5" />}
         />
         <div className="space-y-2 rounded-xl border border-accent-500/30 bg-accent-500/10 p-3 text-sm text-dark-200">
@@ -113,7 +117,9 @@ export function BoostTaskActions({
           </Link>
         </div>
         <p className="text-xs text-dark-500">
-          {t('rewardTasks.boost.hint', { required: task.min_boosts })}
+          {t(isChannel ? 'rewardTasks.channel.hint' : 'rewardTasks.boost.hint', {
+            required: task.min_boosts,
+          })}
         </p>
       </div>
     );
@@ -130,14 +136,14 @@ export function BoostTaskActions({
     checkLabel = t('rewardTasks.boost.wait', { seconds: cooldown });
   } else {
     checkIcon = <CheckIcon className="h-5 w-5" />;
-    checkLabel = t('rewardTasks.boost.check');
+    checkLabel = t(isChannel ? 'rewardTasks.channel.check' : 'rewardTasks.boost.check');
   }
 
   return (
     <div className="space-y-2">
       <TaskLinkButton
         url={task.action_url}
-        label={t('rewardTasks.boost.open')}
+        label={t(isChannel ? 'rewardTasks.channel.open' : 'rewardTasks.boost.open')}
         icon={<RocketIcon className="h-5 w-5" />}
       />
       <Button
@@ -150,7 +156,9 @@ export function BoostTaskActions({
         {checkLabel}
       </Button>
       <p className="text-xs text-dark-500">
-        {t('rewardTasks.boost.hint', { required: task.min_boosts })}
+        {t(isChannel ? 'rewardTasks.channel.hint' : 'rewardTasks.boost.hint', {
+          required: task.min_boosts,
+        })}
       </p>
       {error && (
         <div

@@ -120,8 +120,9 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
       refreshUser();
     },
-    onError: (error: { response?: { data?: { detail?: string } } }) => {
-      setTrialError(error.response?.data?.detail || t('common.error'));
+    onError: (error: { response?: { data?: { detail?: string | { message?: string } } } }) => {
+      const detail = error.response?.data?.detail;
+      setTrialError((typeof detail === 'string' ? detail : detail?.message) || t('common.error'));
     },
   });
 
@@ -150,10 +151,15 @@ export default function Dashboard() {
       } else {
         setTrafficRefreshCooldown(30);
       }
-      queryClient.invalidateQueries({ queryKey: ['subscription', subscription?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ['subscription', subscription?.id],
+      });
     },
     onError: (error: {
-      response?: { status?: number; headers?: { get?: (key: string) => string } };
+      response?: {
+        status?: number;
+        headers?: { get?: (key: string) => string };
+      };
     }) => {
       if (error.response?.status === 429) {
         const retryAfter = error.response.headers?.get?.('Retry-After');

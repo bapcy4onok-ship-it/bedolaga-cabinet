@@ -2160,7 +2160,8 @@
       },
       "kind": {
         "photo_report": "Photo report",
-        "channel_boost": "Channel boost"
+        "channel_boost": "Channel boost",
+        "channel_subscription": "Channel subscription"
       },
       "source": {
         "bot": "Bot",
@@ -2242,7 +2243,8 @@
         "kind": "Task type",
         "kindHint": {
           "photo_report": "The user sends screenshots, an admin reviews them manually",
-          "channel_boost": "The bot checks the channel boost via Telegram and grants the days instantly"
+          "channel_boost": "The bot checks the channel boost via Telegram and grants the days instantly",
+          "channel_subscription": "The bot checks channel membership and grants days."
         },
         "kindLocked": "The task type can't be changed after creation",
         "title": "Title",
@@ -5413,7 +5415,8 @@
     },
     "kind": {
       "photo_report": "Photo report",
-      "channel_boost": "Channel boost"
+      "channel_boost": "Channel boost",
+      "channel_subscription": "Channel subscription"
     },
     "status": {
       "available": "Available",
@@ -5472,7 +5475,14 @@
       "invalid_media": "Check your screenshots: their number must not exceed the task limit",
       "panel_sync_failed": "Couldn't add the days. Please try again later or contact support",
       "rate_limited": "Too many attempts. Please wait a minute",
-      "generic": "Something went wrong. Please try again"
+      "generic": "Something went wrong. Please try again",
+      "channel_not_subscribed": "Join the channel and check again.",
+      "channel_check_failed": "Could not check membership. Try again later."
+    },
+    "channel": {
+      "open": "📢 Open channel",
+      "check": "Check subscription",
+      "hint": "Join the channel and check membership. The reward can be claimed once."
     }
   },
   "polls": {

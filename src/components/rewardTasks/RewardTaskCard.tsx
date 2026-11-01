@@ -34,7 +34,7 @@ export function RewardTaskCard({
   const { t } = useTranslation();
   const [formOpen, setFormOpen] = useState(false);
 
-  const isBoost = task.kind === 'channel_boost';
+  const isBoost = task.kind === 'channel_boost' || task.kind === 'channel_subscription';
   const KindIcon = isBoost ? RocketIcon : PhotoIcon;
   const canAttempt = canAttemptTask(task, eligible);
   const reward = `+${t('rewardTasks.days', { count: task.reward_days })}`;
@@ -73,7 +73,9 @@ export function RewardTaskCard({
       {task.status === 'completed' && (
         <div className="rounded-xl border border-success-500/30 bg-success-500/10 p-3 text-sm text-success-400">
           {task.completed_at
-            ? t('rewardTasks.completedAt', { date: formatShortDate(task.completed_at) })
+            ? t('rewardTasks.completedAt', {
+                date: formatShortDate(task.completed_at),
+              })
             : t('rewardTasks.completedInfo')}
         </div>
       )}

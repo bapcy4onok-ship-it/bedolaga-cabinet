@@ -26,7 +26,10 @@ export function TasksManager({ tasks, isLoading, isError, canEdit }: TasksManage
   const { showToast } = useToast();
   const confirmDelete = useDestructiveConfirm();
   // task держим и после закрытия, чтобы форма не мигала «созданием» на анимации выхода
-  const [editor, setEditor] = useState<{ open: boolean; task: AdminRewardTask | null }>({
+  const [editor, setEditor] = useState<{
+    open: boolean;
+    task: AdminRewardTask | null;
+  }>({
     open: false,
     task: null,
   });
@@ -41,13 +44,20 @@ export function TasksManager({ tasks, isLoading, isError, canEdit }: TasksManage
     mutationFn: (task: AdminRewardTask) =>
       adminRewardTasksApi.updateTask(task.id, { is_active: !task.is_active }),
     onError: (err: unknown) =>
-      showToast({ type: 'error', message: rewardTaskErrorMessage(err, t('common.error')) }),
+      showToast({
+        type: 'error',
+        message: rewardTaskErrorMessage(err, t('common.error')),
+      }),
     onSettled: refreshTasks,
   });
 
   const deleteMutation = useMutation({
     mutationFn: (task: AdminRewardTask) => adminRewardTasksApi.deleteTask(task.id),
-    onSuccess: () => showToast({ type: 'success', message: t('admin.rewardTasks.tasks.deleted') }),
+    onSuccess: () =>
+      showToast({
+        type: 'success',
+        message: t('admin.rewardTasks.tasks.deleted'),
+      }),
     onError: (err: unknown) => {
       const hasSubmissions = axios.isAxiosError(err) && err.response?.status === 409;
       showToast({
@@ -63,7 +73,10 @@ export function TasksManager({ tasks, isLoading, isError, canEdit }: TasksManage
   const handleDelete = async (task: AdminRewardTask) => {
     // Задание с отчётами бэкенд не удалит (409) — объясняем сразу, без лишнего запроса
     if (task.pending_count + task.approved_count > 0) {
-      showToast({ type: 'error', message: t('admin.rewardTasks.tasks.deleteHasSubmissions') });
+      showToast({
+        type: 'error',
+        message: t('admin.rewardTasks.tasks.deleteHasSubmissions'),
+      });
       return;
     }
     const confirmed = await confirmDelete(
@@ -129,23 +142,37 @@ export function TasksManager({ tasks, isLoading, isError, canEdit }: TasksManage
                       +{t('rewardTasks.days', { count: task.reward_days })}
                     </span>
                     <span>
-                      {isBoost
-                        ? t('admin.rewardTasks.tasks.minBoosts', { value: task.min_boosts })
-                        : t('admin.rewardTasks.tasks.maxPhotos', { count: task.max_photos })}
+                      {task.kind === 'channel_subscription'
+                        ? t('admin.rewardTasks.kind.channel_subscription')
+                        : isBoost
+                          ? t('admin.rewardTasks.tasks.minBoosts', {
+                              value: task.min_boosts,
+                            })
+                          : t('admin.rewardTasks.tasks.maxPhotos', {
+                              count: task.max_photos,
+                            })}
                     </span>
                     <span>
-                      {t('admin.rewardTasks.tasks.pendingCount', { value: task.pending_count })}
+                      {t('admin.rewardTasks.tasks.pendingCount', {
+                        value: task.pending_count,
+                      })}
                     </span>
                     <span>
-                      {t('admin.rewardTasks.tasks.approvedCount', { value: task.approved_count })}
+                      {t('admin.rewardTasks.tasks.approvedCount', {
+                        value: task.approved_count,
+                      })}
                     </span>
                     <span>
-                      {t('admin.rewardTasks.tasks.sortOrder', { value: task.sort_order })}
+                      {t('admin.rewardTasks.tasks.sortOrder', {
+                        value: task.sort_order,
+                      })}
                     </span>
                   </div>
                   {isBoost && task.channel_id && (
                     <div className="mt-1 break-all text-xs text-dark-500">
-                      {t('admin.rewardTasks.tasks.channel', { value: task.channel_id })}
+                      {t('admin.rewardTasks.tasks.channel', {
+                        value: task.channel_id,
+                      })}
                     </div>
                   )}
                   {task.action_url && (

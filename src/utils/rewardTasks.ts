@@ -110,6 +110,8 @@ export const USER_TASK_ERROR_CODES: readonly string[] = [
   'user_blocked',
   'telegram_required',
   'boost_check_failed',
+  'channel_check_failed',
+  'channel_not_subscribed',
   'already_completed',
   'already_pending',
   'task_not_found',
@@ -170,7 +172,10 @@ export function describeBulkError(code: string | null): RewardTaskErrorText {
   if (code && BULK_ERROR_CODES.includes(code)) {
     return { key: `admin.rewardTasks.errors.${code}` };
   }
-  return { key: 'admin.rewardTasks.errors.unknown', values: { code: code || '—' } };
+  return {
+    key: 'admin.rewardTasks.errors.unknown',
+    values: { code: code || '—' },
+  };
 }
 
 /**
@@ -262,9 +267,15 @@ export function taskStatusView(
   eligible: boolean,
 ): { labelKey: string; className: string } {
   if (!eligible && status === 'available') {
-    return { labelKey: 'rewardTasks.status.unavailable', className: 'badge-neutral' };
+    return {
+      labelKey: 'rewardTasks.status.unavailable',
+      className: 'badge-neutral',
+    };
   }
-  return { labelKey: `rewardTasks.status.${status}`, className: taskStatusBadge(status) };
+  return {
+    labelKey: `rewardTasks.status.${status}`,
+    className: taskStatusBadge(status),
+  };
 }
 
 /** Тексты баннера и подсказок лежат в rewardTasks.ineligible.<reason>.* */
@@ -668,6 +679,7 @@ export type RewardTaskFormErrors = Partial<Record<RewardTaskFormField, true>>;
 export const DEFAULT_REWARD_DAYS: Record<RewardTaskKind, number> = {
   photo_report: 1,
   channel_boost: 3,
+  channel_subscription: 1,
 };
 const DEFAULT_MIN_BOOSTS = 1;
 const DEFAULT_MAX_PHOTOS = 3;
@@ -753,7 +765,7 @@ export function validateTaskForm(form: RewardTaskFormState): RewardTaskFormError
   if (actionUrl && (actionUrl.length > limits.actionUrlMax || !isHttpUrl(actionUrl))) {
     errors.actionUrl = true;
   }
-  if (form.kind === 'channel_boost') {
+  if (form.kind === 'channel_boost' || form.kind === 'channel_subscription') {
     const channelId = form.channelId.trim();
     if (channelId.length > limits.channelIdMax || !CHANNEL_ID_RE.test(channelId)) {
       errors.channelId = true;
@@ -777,7 +789,7 @@ export function validateTaskForm(form: RewardTaskFormState): RewardTaskFormError
  */
 export function formToTaskPayload(form: RewardTaskFormState): AdminRewardTaskUpdate {
   const limits = REWARD_TASK_LIMITS;
-  const isBoost = form.kind === 'channel_boost';
+  const isBoost = form.kind === 'channel_boost' || form.kind === 'channel_subscription';
   return {
     title: form.title.trim(),
     description: form.description.trim(),

@@ -3,7 +3,7 @@ import { normalizeAdminTaskList, REWARD_BULK_TIMEOUT_MS } from '../utils/rewardT
 
 // ==================== Общие типы ====================
 
-export type RewardTaskKind = 'photo_report' | 'channel_boost';
+export type RewardTaskKind = 'photo_report' | 'channel_boost' | 'channel_subscription';
 
 /** Статус задания для конкретного пользователя (считает бэкенд). */
 export type RewardTaskStatus = 'available' | 'pending' | 'completed' | 'rejected';
@@ -198,6 +198,12 @@ export const rewardTasksApi = {
     return response.data;
   },
 
+  checkChannel: async (taskId: number): Promise<RewardTaskBoostResult> => {
+    const { data } = await apiClient.post<RewardTaskBoostResult>(
+      `/cabinet/tasks/${taskId}/check-channel`,
+    );
+    return data;
+  },
   checkBoost: async (taskId: number): Promise<RewardTaskBoostResult> => {
     const response = await apiClient.post<RewardTaskBoostResult>(
       `/cabinet/tasks/${taskId}/check-boost`,

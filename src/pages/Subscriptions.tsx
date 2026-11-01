@@ -96,8 +96,9 @@ export default function Subscriptions() {
       queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
       refreshUser();
     },
-    onError: (error: { response?: { data?: { detail?: string } } }) => {
-      setTrialError(error.response?.data?.detail || t('common.error'));
+    onError: (error: { response?: { data?: { detail?: string | { message?: string } } } }) => {
+      const detail = error.response?.data?.detail;
+      setTrialError((typeof detail === 'string' ? detail : detail?.message) || t('common.error'));
     },
   });
 

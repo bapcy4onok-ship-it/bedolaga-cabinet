@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { UseMutationResult } from '@tanstack/react-query';
@@ -26,6 +27,17 @@ export default function TrialOfferCard({
   const { formatAmount, currencySymbol } = useCurrency();
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
+  const trialDetail = isAxiosError(activateTrialMutation.error)
+    ? activateTrialMutation.error.response?.data?.detail
+    : null;
+  const trialChannels: Array<{
+    channel_id: string;
+    channel_link?: string;
+    title?: string;
+  }> =
+    trialDetail?.code === 'trial_channel_required' && Array.isArray(trialDetail.channels)
+      ? trialDetail.channels
+      : [];
   const isFree = !trialInfo.requires_payment;
   const canAfford = balanceKopeks >= trialInfo.price_kopeks;
 
@@ -158,7 +170,10 @@ export default function TrialOfferCard({
       {/* Trial stats */}
       <div className="mb-7 flex justify-center gap-8">
         {[
-          { value: String(trialInfo.duration_days), label: t('subscription.trial.days') },
+          {
+            value: String(trialInfo.duration_days),
+            label: t('subscription.trial.days'),
+          },
           {
             value: trialInfo.traffic_limit_gb === 0 ? '∞' : String(trialInfo.traffic_limit_gb),
             label: t('common.units.gb'),
@@ -181,7 +196,10 @@ export default function TrialOfferCard({
       {!isFree && trialInfo.price_rubles > 0 && (
         <div
           className="mb-4 space-y-2 rounded-xl p-4 text-left"
-          style={{ background: g.innerBg, border: `1px solid ${g.innerBorder}` }}
+          style={{
+            background: g.innerBg,
+            border: `1px solid ${g.innerBorder}`,
+          }}
         >
           <div className="flex items-center justify-between">
             <span className="text-sm text-dark-50/40">{t('balance.currentBalance')}</span>
@@ -200,6 +218,20 @@ export default function TrialOfferCard({
       )}
 
       {/* Error */}
+      {trialChannels.map(
+        (channel) =>
+          channel.channel_link?.startsWith('https://t.me/') && (
+            <a
+              key={channel.channel_id}
+              href={channel.channel_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative mb-3 block font-medium text-accent-400 underline"
+            >
+              {t('rewardTasks.channel.open')} {channel.title || ''}
+            </a>
+          ),
+      )}
       {trialError && (
         <div className="mb-4 rounded-xl border border-error-500/30 bg-error-500/10 p-3 text-center text-sm text-error-400">
           {trialError}
